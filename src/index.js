@@ -45,7 +45,6 @@ FastScroll.prototype = {
   },
 
   onScroll: function() {
-
     this.scrollY = this.element.scrollY;
     this.scrollX = this.element.scrollX;
     this.scrolling = true;
@@ -62,7 +61,6 @@ FastScroll.prototype = {
   },
 
   onAnimationFrame: function() {
-
     this.speedY = this.lastScrollY - this.scrollY;
     this.speedX = this.lastScrollX - this.scrollX;
 
@@ -77,9 +75,7 @@ FastScroll.prototype = {
     }
 
     if (this.speedY === 0 && this.speedX === 0) {
-
       window.requestAnimationFrame(delegate(this, this.onCheckScrollStop));
-
     } else {
       window.requestAnimationFrame(delegate(this, this.onAnimationFrame));
     }
