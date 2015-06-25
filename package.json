@@ -1,0 +1,38 @@
+{
+  "name": "fastscroll",
+  "version": "1.0.0",
+  "description": "Performant Custom Scroll Events",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-debug": "browserify src/index.js -d --standalone FastScroll > dist/fastscroll.js",
+    "build-min": "browserify src/index.js --standalone FastScroll | uglifyjs -c > dist/fastscroll.min.js",
+    "build": "npm run build-debug && npm run build-min",
+    "watch": "node ./node_modules/concurrently/src/main.js --kill-others \"watchify src/index.js -d --s FastScroll -o dist/scrollToAction.js -v\" \"npm run server\"",
+    "server": "browser-sync start --server --directory --files 'dist/*.js' --startPath demo/index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soenkekluth/fastscroll.git"
+  },
+  "keywords": [
+    "scroll",
+    "fast",
+    "perfomance",
+    "onScrollStop"
+  ],
+  "author": "Sönke Kluth <soenke.kluth@gmail.com> (http://soenkekluth.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/soenkekluth/fastscroll/issues"
+  },
+  "homepage": "https://github.com/soenkekluth/fastscroll#readme",
+  "devDependencies": {
+    "browser-sync": "^2.7.12",
+    "browserify": "^10.2.4",
+    "concurrently": "^0.1.1",
+    "delegatejs": "^1.0.1",
+    "uglify-js": "^2.4.23",
+    "watchify": "^3.2.3"
+  }
+}

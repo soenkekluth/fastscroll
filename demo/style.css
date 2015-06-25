@@ -1,0 +1,26 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.scroll-to-action__progress {
+  width: 100%;
+  display: block;
+  position: -webkit-sticky;
+  position: -moz-sticky;
+  position: -ms-sticky;
+  position: -o-sticky;
+  position: sticky;
+  top: 50px;
+}
+
+.article {
+  padding: 2em;
+  background-color: #cccccc;
+}
