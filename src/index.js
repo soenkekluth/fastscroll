@@ -18,6 +18,7 @@ var FastScroll = function(options) {
 
 FastScroll.prototype = {
 
+  destroyed: false,
   scrolling: false,
   scrollY: 0,
   scrollX: 0,
@@ -29,7 +30,16 @@ FastScroll.prototype = {
   _hasRequestedAnimationFrame: false,
 
   init: function() {
-    this.element.addEventListener('scroll', delegate(this, this.onScroll), false);
+    this.onScrollDelegate = delegate(this, this.onScroll);
+    this.element.addEventListener('scroll', this.onScrollDelegate, false);
+  },
+
+  destroy:function() {
+    this.element.removeEventListener('scroll', this.onScrollDelegate);
+    this.onScrollDelegate = null;
+    this.element = null;
+    this.options = null;
+    this.destroyed = true;
   },
 
   getAttributes: function() {
@@ -61,6 +71,11 @@ FastScroll.prototype = {
   },
 
   onAnimationFrame: function() {
+
+    if (this.destroyed) {
+      return;
+    }
+
     this.speedY = this.lastScrollY - this.scrollY;
     this.speedX = this.lastScrollX - this.scrollX;
 
