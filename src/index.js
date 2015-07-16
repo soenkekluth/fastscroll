@@ -115,7 +115,7 @@ FastScroll.prototype = {
   off: function(event, listener) {
     if (this.element) {
       //TODO check for events: event
-      this.element.addEventListener(event, listener, false);
+      this.element.removeEventListener(event, listener);
     }
   }
 };
