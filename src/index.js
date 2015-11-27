@@ -63,6 +63,8 @@ FastScroll.prototype = {
 
   init: function() {
     this.onScrollDelegate = delegate(this, this.onScroll);
+    this.onAnimationFrameDelegate = delegate(this, this.onAnimationFrame);
+    this.onCheckScrollStopDelegate = delegate(this, this.onCheckScrollStop);
     this.element.addEventListener('scroll', this.onScrollDelegate, false);
   },
 
@@ -94,7 +96,7 @@ FastScroll.prototype = {
 
     if (!this._hasRequestedAnimationFrame) {
       this._hasRequestedAnimationFrame = true;
-      window.requestAnimationFrame(delegate(this, this.onAnimationFrame));
+      window.requestAnimationFrame(this.onAnimationFrameDelegate);
       var attr = this.getAttributes();
       this.dispatchEvent('scroll:start', attr);
       if (this.options.start) {
@@ -123,9 +125,9 @@ FastScroll.prototype = {
     }
 
     if (this.speedY === 0 && this.speedX === 0) {
-      window.requestAnimationFrame(delegate(this, this.onCheckScrollStop));
+      window.requestAnimationFrame(this.onCheckScrollStopDelegate);
     } else {
-      window.requestAnimationFrame(delegate(this, this.onAnimationFrame));
+      window.requestAnimationFrame(this.onAnimationFrameDelegate);
     }
   },
 
