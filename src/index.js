@@ -34,7 +34,7 @@ FastScroll.prototype = {
     this.element.addEventListener('scroll', this.onScrollDelegate, false);
   },
 
-  destroy:function() {
+  destroy: function() {
     this.element.removeEventListener('scroll', this.onScrollDelegate);
     this.onScrollDelegate = null;
     this.element = null;
@@ -55,9 +55,11 @@ FastScroll.prototype = {
   },
 
   onScroll: function() {
-    this.scrollY = this.element.scrollY;
-    this.scrollX = this.element.scrollX;
+    console.log(this.element, this.element.pageYOffset, this.element.scrollY);
+    this.scrollY = this.element.scrollY || this.element.pageYOffset || 0;
+    this.scrollX = this.element.scrollX || this.element.pageXOffset || 0;
     this.scrolling = true;
+
 
     if (!this._hasRequestedAnimationFrame) {
       this._hasRequestedAnimationFrame = true;
@@ -71,6 +73,8 @@ FastScroll.prototype = {
   },
 
   onAnimationFrame: function() {
+    var d = new Date().getTime();
+    console.log(d, ' onAnimationFrame');
 
     if (this.destroyed) {
       return;
@@ -97,6 +101,7 @@ FastScroll.prototype = {
   },
 
   onCheckScrollStop: function() {
+    console.log('onCheckScrollStop')
     this.speedY = this.lastScrollY - this.scrollY;
     this.speedX = this.lastScrollX - this.scrollX;
     if (this.speedY === 0 && this.speedX === 0) {
@@ -113,6 +118,7 @@ FastScroll.prototype = {
   },
 
   dispatchEvent: function(type, eventObject) {
+    console.log('type', type);
     // create and dispatch the event
     var event = new CustomEvent(type, {
       detail: eventObject
