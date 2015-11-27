@@ -1,6 +1,6 @@
 {
   "name": "fastscroll",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Performant Custom Scroll Events",
   "main": "src/index.js",
   "scripts": {

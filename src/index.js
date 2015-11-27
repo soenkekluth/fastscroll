@@ -8,6 +8,38 @@
  * Licensed under the MIT license.
  */
 
+ /**
+  * [CustomEvent Polyfill]
+  */
+
+ var ceSupport = true;
+
+ try {
+   new CustomEvent();
+ }catch(e){
+   ceSupport = false;
+ }
+
+ if (!ceSupport || typeof window.CustomEvent === 'undefined') {
+   (function() {
+     'use strict';
+     window.CustomEvent = function(event, params) {
+       var evt;
+       params = params || {
+         bubbles: false,
+         cancelable: false,
+         detail: undefined
+       };
+       evt = document.createEvent('CustomEvent');
+       evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+       return evt;
+     };
+
+     window.CustomEvent.prototype = window.Event.prototype;
+   }());
+ }
+
+
 var delegate = require('delegatejs');
 
 var FastScroll = function(options) {
@@ -55,7 +87,6 @@ FastScroll.prototype = {
   },
 
   onScroll: function() {
-    console.log(this.element, this.element.pageYOffset, this.element.scrollY);
     this.scrollY = this.element.scrollY || this.element.pageYOffset || 0;
     this.scrollX = this.element.scrollX || this.element.pageXOffset || 0;
     this.scrolling = true;
@@ -73,8 +104,6 @@ FastScroll.prototype = {
   },
 
   onAnimationFrame: function() {
-    var d = new Date().getTime();
-    console.log(d, ' onAnimationFrame');
 
     if (this.destroyed) {
       return;
@@ -101,7 +130,7 @@ FastScroll.prototype = {
   },
 
   onCheckScrollStop: function() {
-    console.log('onCheckScrollStop')
+
     this.speedY = this.lastScrollY - this.scrollY;
     this.speedX = this.lastScrollX - this.scrollX;
     if (this.speedY === 0 && this.speedX === 0) {
@@ -118,7 +147,6 @@ FastScroll.prototype = {
   },
 
   dispatchEvent: function(type, eventObject) {
-    console.log('type', type);
     // create and dispatch the event
     var event = new CustomEvent(type, {
       detail: eventObject
