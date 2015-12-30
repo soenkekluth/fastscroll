@@ -63,10 +63,22 @@
   }
 
   var fastScroll = new FastScroll();
+
+  fastScroll.on('scroll:start', function(event){
+    console.log(event);
+  });
+
   fastScroll.on('scroll:progress', function(event){
+
     // console.log(event.detail);
     follower.style.top = event.detail.scrollY + 'px';
   });
+
+
+  fastScroll.on('scroll:stop', function(event){
+    console.log(event);
+  });
+
 
   </script>
 </body>

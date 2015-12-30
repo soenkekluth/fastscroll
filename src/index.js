@@ -8,44 +8,16 @@
  * Licensed under the MIT license.
  */
 
- /**
-  * [CustomEvent Polyfill]
-  */
-
- var ceSupport = true;
-
- try {
-   new CustomEvent();
- }catch(e){
-   ceSupport = false;
- }
-
- if (!ceSupport || typeof window.CustomEvent === 'undefined') {
-   (function() {
-     'use strict';
-     window.CustomEvent = function(event, params) {
-       var evt;
-       params = params || {
-         bubbles: false,
-         cancelable: false,
-         detail: undefined
-       };
-       evt = document.createEvent('CustomEvent');
-       evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-       return evt;
-     };
-
-     window.CustomEvent.prototype = window.Event.prototype;
-   }());
- }
-
 
 var delegate = require('delegatejs');
+var EventDispatcher = require('./eventdispatcher');
 
 var FastScroll = function(options) {
   this.options = (options || {});
   this.element = this.options.el ||  window;
-  this.init();
+  if(this.element){
+    this.init();
+  }
 };
 
 FastScroll.prototype = {
@@ -62,6 +34,7 @@ FastScroll.prototype = {
   _hasRequestedAnimationFrame: false,
 
   init: function() {
+    this.dispatcher = new EventDispatcher();
     this.onScrollDelegate = delegate(this, this.onScroll);
     this.onAnimationFrameDelegate = delegate(this, this.onAnimationFrame);
     this.onCheckScrollStopDelegate = delegate(this, this.onCheckScrollStop);
@@ -96,7 +69,7 @@ FastScroll.prototype = {
 
     if (!this._hasRequestedAnimationFrame) {
       this._hasRequestedAnimationFrame = true;
-      window.requestAnimationFrame(this.onAnimationFrameDelegate);
+      requestAnimationFrame(this.onAnimationFrameDelegate);
       var attr = this.getAttributes();
       this.dispatchEvent('scroll:start', attr);
       if (this.options.start) {
@@ -125,9 +98,9 @@ FastScroll.prototype = {
     }
 
     if (this.speedY === 0 && this.speedX === 0) {
-      window.requestAnimationFrame(this.onCheckScrollStopDelegate);
+      requestAnimationFrame(this.onCheckScrollStopDelegate);
     } else {
-      window.requestAnimationFrame(this.onAnimationFrameDelegate);
+      requestAnimationFrame(this.onAnimationFrameDelegate);
     }
   },
 
@@ -135,6 +108,7 @@ FastScroll.prototype = {
 
     this.speedY = this.lastScrollY - this.scrollY;
     this.speedX = this.lastScrollX - this.scrollX;
+
     if (this.speedY === 0 && this.speedX === 0) {
       this.scrolling = false;
       this._hasRequestedAnimationFrame = false;
@@ -149,25 +123,17 @@ FastScroll.prototype = {
   },
 
   dispatchEvent: function(type, eventObject) {
-    // create and dispatch the event
-    var event = new CustomEvent(type, {
-      detail: eventObject
-    });
-    this.element.dispatchEvent(event);
+    eventObject.target = this.element;
+    eventObject.detail = eventObject;
+    this.dispatcher.dispatch(type, eventObject);
   },
 
   on: function(event, listener) {
-    if (this.element) {
-      //TODO check for events: event
-      this.element.addEventListener(event, listener, false);
-    }
+    return this.dispatcher.on(event, listener);
   },
 
   off: function(event, listener) {
-    if (this.element) {
-      //TODO check for events: event
-      this.element.removeEventListener(event, listener);
-    }
+    return this.dispatcher.off(event, listener);
   }
 };
 
