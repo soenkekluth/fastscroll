@@ -28,6 +28,9 @@ FastScroll.prototype = {
   scrollX: 0,
   lastScrollY: 0,
   lastScrollX: 0,
+  stopFrames: 5,
+  currentStopFrames: 0,
+  firstRender:true,
   speedY: 0,
   speedX: 0,
 
@@ -37,7 +40,6 @@ FastScroll.prototype = {
     this.dispatcher = new EventDispatcher();
     this.onScrollDelegate = delegate(this, this.onScroll);
     this.onAnimationFrameDelegate = delegate(this, this.onAnimationFrame);
-    this.onCheckScrollStopDelegate = delegate(this, this.onCheckScrollStop);
     this.element.addEventListener('scroll', this.onScrollDelegate, false);
   },
 
@@ -61,22 +63,34 @@ FastScroll.prototype = {
     };
   },
 
-  onScroll: function() {
+  updateScrollPosition:function(){
     this.scrollY = this.element.scrollY || this.element.pageYOffset || 0;
     this.scrollX = this.element.scrollX || this.element.pageXOffset || 0;
+  },
+
+  onScroll: function() {
+    this.updateScrollPosition();
+    this.currentStopFrames = 0;
     this.scrolling = true;
 
+    if(this.firstRender){
+      if(this.scrollY > 1){
+       this.currentStopFrames = this.stopFrames -1;
+      }
+      this.firstRender = false;
+    }
 
     if (!this._hasRequestedAnimationFrame) {
       this._hasRequestedAnimationFrame = true;
-      requestAnimationFrame(this.onAnimationFrameDelegate);
       var attr = this.getAttributes();
       this.dispatchEvent('scroll:start', attr);
+      requestAnimationFrame(this.onAnimationFrameDelegate);
       if (this.options.start) {
         this.options.start.call(this, attr);
       }
     }
   },
+
 
   onAnimationFrame: function() {
 
@@ -84,45 +98,46 @@ FastScroll.prototype = {
       return;
     }
 
+    this.updateScrollPosition();
+
     this.speedY = this.lastScrollY - this.scrollY;
     this.speedX = this.lastScrollX - this.scrollX;
 
     this.lastScrollY = this.scrollY;
     this.lastScrollX = this.scrollX;
 
+
+    if(this.speedY === 0 && this.scrolling && (this.currentStopFrames++ > this.stopFrames)){
+       this.onScrollStop();
+      return;
+    }
+
+
     var attr = this.getAttributes();
-    this.dispatchEvent('scroll:progress', this.getAttributes());
+    this.dispatchEvent('scroll:progress', attr);
 
     if (this.options.scrolling) {
       this.options.scrolling.call(this, attr);
     }
 
-    if (this.speedY === 0 && this.speedX === 0) {
-      requestAnimationFrame(this.onCheckScrollStopDelegate);
-    } else {
-      requestAnimationFrame(this.onAnimationFrameDelegate);
-    }
+    requestAnimationFrame(this.onAnimationFrameDelegate);
   },
 
-  onCheckScrollStop: function() {
 
-    this.speedY = this.lastScrollY - this.scrollY;
-    this.speedX = this.lastScrollX - this.scrollX;
+  onScrollStop:function(){
 
-    if (this.speedY === 0 && this.speedX === 0) {
-      this.scrolling = false;
-      this._hasRequestedAnimationFrame = false;
-      var attr = this.getAttributes();
-      this.dispatchEvent('scroll:stop', attr);
-      if (this.options.stop) {
-        this.options.stop.call(this, attr);
-      }
-    } else {
-      this.onAnimationFrame();
+    this.scrolling = false;
+    this._hasRequestedAnimationFrame = false;
+    this.currentStopFrames = 0;
+    var attr = this.getAttributes();
+    this.dispatchEvent('scroll:stop', attr);
+    if (this.options.stop) {
+      this.options.stop.call(this, attr);
     }
   },
 
   dispatchEvent: function(type, eventObject) {
+    eventObject = eventObject || this.getAttributes();
     eventObject.target = this.element;
     eventObject.detail = eventObject;
     this.dispatcher.dispatch(type, eventObject);
