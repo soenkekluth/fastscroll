@@ -8,14 +8,13 @@
  * Licensed under the MIT license.
  */
 
-
 var delegate = require('delegatejs');
 var EventDispatcher = require('./eventdispatcher');
 
 var FastScroll = function(options) {
   this.options = (options || {});
   this.element = this.options.el ||  window;
-  if(this.element){
+  if (this.element) {
     this.init();
   }
 };
@@ -30,7 +29,7 @@ FastScroll.prototype = {
   lastScrollX: 0,
   stopFrames: 5,
   currentStopFrames: 0,
-  firstRender:true,
+  firstRender: true,
   speedY: 0,
   speedX: 0,
 
@@ -38,6 +37,11 @@ FastScroll.prototype = {
 
   init: function() {
     this.dispatcher = new EventDispatcher();
+    if (this.element === window) {
+      this.updateScrollPosition = delegate(this, this.updateWindowScrollPosition);
+    }else {
+      this.updateScrollPosition = delegate(this, this.updateElementScrollPosition);
+    }
     this.onScrollDelegate = delegate(this, this.onScroll);
     this.onAnimationFrameDelegate = delegate(this, this.onAnimationFrame);
     this.element.addEventListener('scroll', this.onScrollDelegate, false);
@@ -63,9 +67,14 @@ FastScroll.prototype = {
     };
   },
 
-  updateScrollPosition:function(){
+  updateWindowScrollPosition: function() {
     this.scrollY = this.element.scrollY || this.element.pageYOffset || 0;
     this.scrollX = this.element.scrollX || this.element.pageXOffset || 0;
+  },
+
+  updateElementScrollPosition: function() {
+    this.scrollY = this.element.scrollTop;
+    this.scrollX = this.element.scrollLeft;
   },
 
   onScroll: function() {
@@ -73,9 +82,9 @@ FastScroll.prototype = {
     this.currentStopFrames = 0;
     this.scrolling = true;
 
-    if(this.firstRender){
-      if(this.scrollY > 1){
-       this.currentStopFrames = this.stopFrames -1;
+    if (this.firstRender) {
+      if (this.scrollY > 1) {
+        this.currentStopFrames = this.stopFrames - 1;
       }
       this.firstRender = false;
     }
@@ -91,7 +100,6 @@ FastScroll.prototype = {
     }
   },
 
-
   onAnimationFrame: function() {
 
     if (this.destroyed) {
@@ -106,12 +114,10 @@ FastScroll.prototype = {
     this.lastScrollY = this.scrollY;
     this.lastScrollX = this.scrollX;
 
-
-    if(this.speedY === 0 && this.scrolling && (this.currentStopFrames++ > this.stopFrames)){
-       this.onScrollStop();
+    if (this.speedY === 0 && this.scrolling && (this.currentStopFrames++ > this.stopFrames)) {
+      this.onScrollStop();
       return;
     }
-
 
     var attr = this.getAttributes();
     this.dispatchEvent('scroll:progress', attr);
@@ -123,8 +129,7 @@ FastScroll.prototype = {
     requestAnimationFrame(this.onAnimationFrameDelegate);
   },
 
-
-  onScrollStop:function(){
+  onScrollStop: function() {
 
     this.scrolling = false;
     this._hasRequestedAnimationFrame = false;
