@@ -62,6 +62,7 @@ FastScroll.prototype = {
 
   destroy: function() {
     if(_instanceMap[this.element].listenerCount <= 0 && !this.destroyed){
+      delete(_instanceMap[this.element]);
       this.element.removeEventListener('scroll', this.onScrollDelegate);
       this.dispatcher.off();
       this.dispatcher = null;
