@@ -60,7 +60,7 @@ FastScroll.prototype = {
   init: function() {
     this.dispatcher = new EventDispatcher();
     this.updateScrollPosition = (this.element === window) ? delegate(this, this.updateWindowScrollPosition) : delegate(this, this.updateElementScrollPosition);
-    this.this.updateScrollPosition();
+    this.updateScrollPosition();
     this.onScrollDelegate = delegate(this, this.onScroll);
     this.onAnimationFrameDelegate = delegate(this, this.onAnimationFrame);
     this.element.addEventListener('scroll', this.onScrollDelegate, false);
