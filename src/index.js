@@ -49,6 +49,11 @@ FastScroll.prototype = {
   stopFrames: 5,
   currentStopFrames: 0,
   firstRender: true,
+  lastEvent: {
+    type: null,
+    scrollY:0,
+    scrollX:0
+  },
 
   _hasRequestedAnimationFrame: false,
 
@@ -146,6 +151,14 @@ FastScroll.prototype = {
 
   dispatchEvent: function(type, eventObject) {
     eventObject = eventObject || this.getAttributes();
+    if(this.lastEvent.type === type && this.lastEvent.scrollY === eventObject.scrollY && this.lastEvent.scrollX === eventObject.scrollX) {
+      return;
+    }
+    this.lastEvent = {
+      type: eventObject.type,
+      scrollY: eventObject.scrollY,
+      scrollX: eventObject.scrollX
+    };
     eventObject.fastScroll = this;
     eventObject.target = this.element;
     this.dispatcher.dispatch(type, eventObject);
