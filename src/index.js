@@ -11,13 +11,18 @@
 var delegate = require('delegatejs');
 var EventDispatcher = require('./eventdispatcher');
 
-var FastScroll = function(options) {
-  this.options = (options || {});
-  this.element = this.options.el ||  window;
+var FastScroll = function(scrollTarget) {
+  this.element = scrollTarget || window;
   if (this.element) {
     this.init();
   }
 };
+
+FastScroll.UP = 'up';
+FastScroll.DOWN = 'down';
+FastScroll.NONE = 'none';
+FastScroll.LEFT = 'left';
+FastScroll.RIGHT = 'right';
 
 FastScroll.prototype = {
 
@@ -27,21 +32,17 @@ FastScroll.prototype = {
   scrollX: 0,
   lastScrollY: 0,
   lastScrollX: 0,
+  speedY: 0,
+  speedX: 0,
   stopFrames: 5,
   currentStopFrames: 0,
   firstRender: true,
-  speedY: 0,
-  speedX: 0,
 
   _hasRequestedAnimationFrame: false,
 
   init: function() {
     this.dispatcher = new EventDispatcher();
-    if (this.element === window) {
-      this.updateScrollPosition = delegate(this, this.updateWindowScrollPosition);
-    }else {
-      this.updateScrollPosition = delegate(this, this.updateElementScrollPosition);
-    }
+    this.updateScrollPosition = (this.element === window) ? delegate(this, this.updateWindowScrollPosition) : delegate(this, this.updateElementScrollPosition);
     this.onScrollDelegate = delegate(this, this.onScroll);
     this.onAnimationFrameDelegate = delegate(this, this.onAnimationFrame);
     this.element.addEventListener('scroll', this.onScrollDelegate, false);
@@ -51,19 +52,18 @@ FastScroll.prototype = {
     this.element.removeEventListener('scroll', this.onScrollDelegate);
     this.onScrollDelegate = null;
     this.element = null;
-    this.options = null;
     this.destroyed = true;
   },
 
   getAttributes: function() {
     return {
-      scrollY: this.scrollY,
       scrollX: this.scrollX,
+      scrollY: this.scrollY,
       speedY: this.speedY,
       speedX: this.speedX,
       angle: 0,
-      //TODO not save for now... do like checkScrollstop
-      direction: this.speedY === 0 ? 'none' : (this.speedY > 0) ? 'up' : 'down'
+      speedY: this.speedY === 0 ? FastScroll.NONE : ((this.speedY > 0) ? FastScroll.UP : FastScroll.DOWN),
+      speedX: this.speedX === 0 ? FastScroll.NONE : ((this.speedX > 0) ? FastScroll.RIGHT : FastScroll.LEFT)
     };
   },
 
@@ -91,17 +91,12 @@ FastScroll.prototype = {
 
     if (!this._hasRequestedAnimationFrame) {
       this._hasRequestedAnimationFrame = true;
-      var attr = this.getAttributes();
-      this.dispatchEvent('scroll:start', attr);
+      this.dispatchEvent('scroll:start');
       requestAnimationFrame(this.onAnimationFrameDelegate);
-      if (this.options.start) {
-        this.options.start.call(this, attr);
-      }
     }
   },
 
   onAnimationFrame: function() {
-
     if (this.destroyed) {
       return;
     }
@@ -119,32 +114,21 @@ FastScroll.prototype = {
       return;
     }
 
-    var attr = this.getAttributes();
-    this.dispatchEvent('scroll:progress', attr);
-
-    if (this.options.scrolling) {
-      this.options.scrolling.call(this, attr);
-    }
-
+    this.dispatchEvent('scroll:progress');
     requestAnimationFrame(this.onAnimationFrameDelegate);
   },
 
   onScrollStop: function() {
-
     this.scrolling = false;
     this._hasRequestedAnimationFrame = false;
     this.currentStopFrames = 0;
-    var attr = this.getAttributes();
-    this.dispatchEvent('scroll:stop', attr);
-    if (this.options.stop) {
-      this.options.stop.call(this, attr);
-    }
+    this.dispatchEvent('scroll:stop');
   },
 
   dispatchEvent: function(type, eventObject) {
     eventObject = eventObject || this.getAttributes();
+    eventObject.fastScroll = this;
     eventObject.target = this.element;
-    eventObject.detail = eventObject;
     this.dispatcher.dispatch(type, eventObject);
   },
 
