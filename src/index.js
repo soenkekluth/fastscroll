@@ -11,11 +11,23 @@
 var delegate = require('delegatejs');
 var EventDispatcher = require('./eventdispatcher');
 
+var _instanceMap = {};
+
+
 var FastScroll = function(scrollTarget) {
-  this.element = scrollTarget || window;
-  if (this.element) {
-    this.init();
+  scrollTarget = scrollTarget || window;
+  if (_instanceMap[scrollTarget]) {
+    return _instanceMap[scrollTarget].instance;
+  } else {
+    _instanceMap[scrollTarget] = {
+      instance: this,
+      listenerCount: 0
+    }
   }
+
+  this.element = scrollTarget;
+  this.init();
+  return this;
 };
 
 FastScroll.UP = 'up';
@@ -49,10 +61,16 @@ FastScroll.prototype = {
   },
 
   destroy: function() {
-    this.element.removeEventListener('scroll', this.onScrollDelegate);
-    this.onScrollDelegate = null;
-    this.element = null;
-    this.destroyed = true;
+    if(_instanceMap[this.element].listenerCount <= 0 && !this.destroyed){
+      this.element.removeEventListener('scroll', this.onScrollDelegate);
+      this.dispatcher.off();
+      this.dispatcher = null;
+      this.onScrollDelegate = null;
+      this.updateScrollPosition = null;
+      this.onAnimationFrameDelegate = null;
+      this.element = null;
+      this.destroyed = true;
+    }
   },
 
   getAttributes: function() {
@@ -133,12 +151,22 @@ FastScroll.prototype = {
   },
 
   on: function(event, listener) {
-    return this.dispatcher.on(event, listener);
+    if (this.dispatcher.on(event, listener)) {
+      _instanceMap[this.element].listenerCount += 1;
+      return true;
+    }
+    return false;
   },
 
   off: function(event, listener) {
-    return this.dispatcher.off(event, listener);
+    if(this.dispatcher.off(event, listener)){
+      _instanceMap[this.element].listenerCount -= 1;
+      return true;
+    }
+    return false;
   }
 };
+
+FastScroll.___instanceMap = _instanceMap;
 
 module.exports = FastScroll;

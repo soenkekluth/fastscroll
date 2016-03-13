@@ -66,6 +66,11 @@
 
   var fastScroll = new FastScroll();
 
+  console.log(fastScroll === new FastScroll());
+  console.log(fastScroll === new FastScroll());
+  console.log(new FastScroll() === new FastScroll());
+  console.log(FastScroll.___instanceMap);
+
   fastScroll.on('scroll:start', function(event){
     console.log('scroll:start', event.scrollY);
   });
