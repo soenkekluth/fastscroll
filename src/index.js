@@ -14,7 +14,7 @@ var EventDispatcher = require('./eventdispatcher');
 var _instanceMap = {};
 
 
-var FastScroll = function(scrollTarget) {
+var FastScroll = function(scrollTarget, options) {
   scrollTarget = scrollTarget || window;
   if (_instanceMap[scrollTarget]) {
     return _instanceMap[scrollTarget].instance;
@@ -25,6 +25,7 @@ var FastScroll = function(scrollTarget) {
     }
   }
 
+  this.options = options || {animationFrame: true};
   this.element = scrollTarget;
   this.init();
   return this;
@@ -44,38 +45,44 @@ FastScroll.prototype = {
   scrollX: 0,
   lastScrollY: 0,
   lastScrollX: 0,
+  timeout: 0,
   speedY: 0,
   speedX: 0,
   stopFrames: 5,
   currentStopFrames: 0,
   firstRender: true,
+  animationFrame: true,
   lastEvent: {
     type: null,
     scrollY:0,
     scrollX:0
   },
 
-  _hasRequestedAnimationFrame: false,
+  _hasRequestedNextFrame: false,
 
   init: function() {
     this.dispatcher = new EventDispatcher();
+    this.animationFrame = this.options.animationFrame;
+    console.log('his.animationFrame', this.animationFrame);
     this.updateScrollPosition = (this.element === window) ? delegate(this, this.updateWindowScrollPosition) : delegate(this, this.updateElementScrollPosition);
     this.updateScrollPosition();
+    this.lastEvent.scrollY = this.scrollY;
+    this.lastEvent.scrollX = this.scrollX;
     this.onScrollDelegate = delegate(this, this.onScroll);
-    this.onAnimationFrameDelegate = delegate(this, this.onAnimationFrame);
+    this.onNextFrameDelegate = delegate(this, this.onNextFrame);
     this.element.addEventListener('scroll', this.onScrollDelegate, false);
   },
 
   destroy: function() {
     if(_instanceMap[this.element].listenerCount <= 0 && !this.destroyed){
       delete(_instanceMap[this.element]);
-      cancelAnimationFrame(this.animReqID);
+      this.cancelNextFrame();
       this.element.removeEventListener('scroll', this.onScrollDelegate);
       this.dispatcher.off();
       this.dispatcher = null;
       this.onScrollDelegate = null;
       this.updateScrollPosition = null;
-      this.onAnimationFrameDelegate = null;
+      this.onNextFrameDelegate = null;
       this.element = null;
       this.destroyed = true;
     }
@@ -83,13 +90,13 @@ FastScroll.prototype = {
 
   getAttributes: function() {
     return {
-      scrollX: this.scrollX,
       scrollY: this.scrollY,
+      scrollX: this.scrollX,
       speedY: this.speedY,
       speedX: this.speedX,
       angle: 0,
-      speedY: this.speedY === 0 ? FastScroll.NONE : ((this.speedY > 0) ? FastScroll.UP : FastScroll.DOWN),
-      speedX: this.speedX === 0 ? FastScroll.NONE : ((this.speedX > 0) ? FastScroll.RIGHT : FastScroll.LEFT)
+      directionY: this.speedY === 0 ? FastScroll.NONE : ((this.speedY > 0) ? FastScroll.UP : FastScroll.DOWN),
+      directionX: this.speedX === 0 ? FastScroll.NONE : ((this.speedX > 0) ? FastScroll.RIGHT : FastScroll.LEFT)
     };
   },
 
@@ -115,19 +122,29 @@ FastScroll.prototype = {
       this.firstRender = false;
     }
 
-    if (!this._hasRequestedAnimationFrame) {
-      this._hasRequestedAnimationFrame = true;
+    if (!this._hasRequestedNextFrame) {
+      this._hasRequestedNextFrame = true;
       this.dispatchEvent('scroll:start');
-      this.animReqID = requestAnimationFrame(this.onAnimationFrameDelegate);
+      this.nextFrameID = requestAnimationFrame(this.onNextFrameDelegate);
+    }
+    if(!this.animationFrame){
+      clearTimeout(this.timeout);
+      this.onNextFrame();
+      var self = this;
+      this.timeout = setTimeout(function(){
+        self.onScrollStop();
+      }, 100);
     }
   },
 
-  onAnimationFrame: function() {
+  onNextFrame: function() {
     if (this.destroyed) {
       return;
     }
 
-    this.updateScrollPosition();
+    if(this.animationFrame){
+      this.updateScrollPosition();
+    }
 
     this.speedY = this.lastScrollY - this.scrollY;
     this.speedX = this.lastScrollX - this.scrollX;
@@ -135,29 +152,42 @@ FastScroll.prototype = {
     this.lastScrollY = this.scrollY;
     this.lastScrollX = this.scrollX;
 
-    if (this.speedY === 0 && this.scrolling && (this.currentStopFrames++ > this.stopFrames)) {
-      this.onScrollStop();
-      return;
+    if(this.animationFrame){
+      if (this.speedY === 0 && this.scrolling && (this.currentStopFrames++ > this.stopFrames)) {
+        this.onScrollStop();
+        return;
+      }
     }
 
     this.dispatchEvent('scroll:progress');
-    this.animReqID = requestAnimationFrame(this.onAnimationFrameDelegate);
+    if(this.animationFrame){
+      this.nextFrameID = requestAnimationFrame(this.onNextFrameDelegate);
+    }
+
   },
 
   onScrollStop: function() {
     this.scrolling = false;
-    this._hasRequestedAnimationFrame = false;
+    this.cancelNextFrame();
+    this._hasRequestedNextFrame = false;
     this.currentStopFrames = 0;
     this.dispatchEvent('scroll:stop');
   },
 
+
+  cancelNextFrame:function(){
+    cancelAnimationFrame(this.nextFrameID);
+  },
+
   dispatchEvent: function(type, eventObject) {
     eventObject = eventObject || this.getAttributes();
+
     if(this.lastEvent.type === type && this.lastEvent.scrollY === eventObject.scrollY && this.lastEvent.scrollX === eventObject.scrollX) {
       return;
     }
+
     this.lastEvent = {
-      type: eventObject.type,
+      type: type,
       scrollY: eventObject.scrollY,
       scrollX: eventObject.scrollX
     };

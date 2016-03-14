@@ -64,7 +64,7 @@
     // fixed.appendChild(p);
   }
 
-  var fastScroll = new FastScroll();
+  var fastScroll = new FastScroll(window, {animationFrame: true});
 
   console.log(fastScroll === new FastScroll());
   console.log(fastScroll === new FastScroll());
@@ -81,7 +81,7 @@
   });
 
   fastScroll.on('scroll:stop', function(event){
-    console.log('scroll:stop', event.scrollY);
+    console.log('=======================================================> scroll:stop', event.scrollY);
   });
 
 
