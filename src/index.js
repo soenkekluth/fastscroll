@@ -69,6 +69,7 @@ FastScroll.prototype = {
   destroy: function() {
     if(_instanceMap[this.element].listenerCount <= 0 && !this.destroyed){
       delete(_instanceMap[this.element]);
+      cancelAnimationFrame(this.animReqID);
       this.element.removeEventListener('scroll', this.onScrollDelegate);
       this.dispatcher.off();
       this.dispatcher = null;
@@ -117,7 +118,7 @@ FastScroll.prototype = {
     if (!this._hasRequestedAnimationFrame) {
       this._hasRequestedAnimationFrame = true;
       this.dispatchEvent('scroll:start');
-      requestAnimationFrame(this.onAnimationFrameDelegate);
+      this.animReqID = requestAnimationFrame(this.onAnimationFrameDelegate);
     }
   },
 
@@ -140,7 +141,7 @@ FastScroll.prototype = {
     }
 
     this.dispatchEvent('scroll:progress');
-    requestAnimationFrame(this.onAnimationFrameDelegate);
+    this.animReqID = requestAnimationFrame(this.onAnimationFrameDelegate);
   },
 
   onScrollStop: function() {
