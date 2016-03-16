@@ -9,8 +9,7 @@
  */
 
 var delegate = require('delegatejs');
-var EventDispatcher = require('./eventdispatcher');
-
+var EventDispatcher = require('eventdispatcher');
 var _instanceMap = {};
 
 var FastScroll = function(scrollTarget, options) {
@@ -73,7 +72,7 @@ FastScroll.prototype = {
   init: function() {
     this.dispatcher = new EventDispatcher();
     this.animationFrame = this.options.animationFrame;
-    this.updateScrollPosition = (this.scrollTarget === window || this.scrollTarget === document.body) ? delegate(this, this.updateWindowScrollPosition) : delegate(this, this.updateElementScrollPosition);
+    this.updateScrollPosition = (this.scrollTarget === window /*|| this.scrollTarget === document.body*/) ? delegate(this, this.updateWindowScrollPosition) : delegate(this, this.updateElementScrollPosition);
     this.updateScrollPosition();
     this.trigger = this.dispatchEvent;
     this.lastEvent.scrollY = this.scrollY;

@@ -1,6 +1,6 @@
 {
   "name": "fastscroll",
-  "version": "1.6.5",
+  "version": "1.7.0",
   "description": "Performant Custom Scroll Events",
   "main": "src/index.js",
   "scripts": {
@@ -28,7 +28,8 @@
   },
   "homepage": "https://github.com/soenkekluth/fastscroll#readme",
   "dependencies": {
-    "delegatejs": "1.0.1"
+    "delegatejs": "1.0.1",
+    "eventdispatcher": "1.2.0"
   },
   "devDependencies": {
     "browser-sync": "2.11.1",

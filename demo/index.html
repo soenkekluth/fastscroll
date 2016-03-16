@@ -32,14 +32,14 @@
   }
 
 
-  function updatePosition(){
-    var scrollY = -boxContainer.getBoundingClientRect().top; //window.scrollY || window.pageYOffset || 0 || boxContainer.getBoundingClientRect().top;
-    follower.style.top = scrollY + 'px';
-  }
+  // function updatePosition(){
+  //   var scrollY = -boxContainer.getBoundingClientRect().top; //window.scrollY || window.pageYOffset || 0 || boxContainer.getBoundingClientRect().top;
+  //   follower.style.top = scrollY + 'px';
+  // }
 
-  document.body.addEventListener('scroll', function(){
-    window.requestAnimationFrame(updatePosition);
-  }, false);
+  // document.body.addEventListener('scroll', function(){
+  //   window.requestAnimationFrame(updatePosition);
+  // }, false);
 
 
   // document.body.addEventListener('scroll', function(e){
@@ -61,25 +61,22 @@
   //   // window.requestAnimationFrame(updatePosition);
   // }, false);
 
-  // var fastScroll = new FastScroll(window, {animationFrame: true});
+  var fastScroll = new FastScroll(window, {animationFrame: true});
 
-  // fastScroll.on('scroll:start', function(event){
-  //   // console.log('scroll:start', event.scrollY);
-  //   // follower.style.top = event.scrollY + 'px';
-  //   updatePosition();
-  // });
+  fastScroll.on('scroll:start', function(event){
+    // console.log('scroll:start', event.scrollY);
+    follower.style.top = event.scrollY + 'px';
+  });
 
-  // fastScroll.on('scroll:progress', function(event){
-  //   // console.log('scroll:progress', event.scrollY);
-  //   // follower.style.top = event.scrollY + 'px';
-  //   updatePosition();
-  // });
+  fastScroll.on('scroll:progress', function(event){
+    // console.log('scroll:progress', event.scrollY);
+    follower.style.top = event.scrollY + 'px';
+  });
 
-  // fastScroll.on('scroll:stop', function(event){
-  //   // console.log('scroll:stop', event.scrollY);
-  //   // follower.style.top = event.scrollY + 'px';
-  //   updatePosition();
-  // });
+  fastScroll.on('scroll:stop', function(event){
+    // console.log('scroll:stop', event.scrollY);
+    follower.style.top = event.scrollY + 'px';
+  });
 
 
   </script>
