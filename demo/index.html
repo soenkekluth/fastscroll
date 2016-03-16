@@ -61,20 +61,20 @@
   //   // window.requestAnimationFrame(updatePosition);
   // }, false);
 
-  var fastScroll = new FastScroll(window, {animationFrame: true});
+  var fastScroll = new FastScroll(window);
 
   fastScroll.on('scroll:start', function(event){
-    // console.log('scroll:start', event.scrollY);
+    console.log('scroll:start', event.scrollY);
     follower.style.top = event.scrollY + 'px';
   });
 
   fastScroll.on('scroll:progress', function(event){
-    // console.log('scroll:progress', event.scrollY);
+    console.log('scroll:progress', event.scrollY);
     follower.style.top = event.scrollY + 'px';
   });
 
   fastScroll.on('scroll:stop', function(event){
-    // console.log('scroll:stop', event.scrollY);
+    console.log('scroll:stop', event.scrollY);
     follower.style.top = event.scrollY + 'px';
   });
 
