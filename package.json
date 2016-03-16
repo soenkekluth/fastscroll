@@ -1,6 +1,6 @@
 {
   "name": "fastscroll",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "Performant Custom Scroll Events",
   "main": "src/index.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "build-min": "browserify src/index.js --standalone FastScroll | uglifyjs -c > dist/fastscroll.min.js",
     "dist": "npm run build-debug && npm run build-min",
     "start": "node ./node_modules/concurrently/src/main.js --kill-others \"watchify src/index.js -d --s FastScroll -o dist/fastscroll.js -v\" \"npm run server\"",
-    "server": "browser-sync start --server --directory --files 'demo/**/**, dist/*.js' --startPath demo/index.html"
+    "server": "browser-sync start --no-ghost-mode --server --directory --files 'demo/**/**, dist/*.js' --startPath demo/index.html"
   },
   "repository": {
     "type": "git",

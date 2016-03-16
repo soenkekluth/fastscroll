@@ -24,7 +24,7 @@ var FastScroll = function(scrollTarget, options) {
     };
   }
 
-  this.options = options || {animationFrame: true};
+  this.options = options || { animationFrame: true };
   this.scrollTarget = scrollTarget;
   this.init();
   return this;
@@ -78,21 +78,21 @@ FastScroll.prototype = {
     this.trigger = this.dispatchEvent;
     this.lastEvent.scrollY = this.scrollY;
     this.lastEvent.scrollX = this.scrollX;
-    this.onScrollDelegate = delegate(this, this.onScroll);
-    this.onNextFrameDelegate = delegate(this, this.onNextFrame);
-    this.scrollTarget.addEventListener('scroll', this.onScrollDelegate, false);
+    this.onScroll = delegate(this, this.onScroll);
+    this.onNextFrame = delegate(this, this.onNextFrame);
+    this.scrollTarget.addEventListener('scroll', this.onScroll, false);
   },
 
   destroy: function() {
     if (_instanceMap[this.scrollTarget].listenerCount <= 0 && !this.destroyed) {
       delete(_instanceMap[this.scrollTarget]);
       this.cancelNextFrame();
-      this.scrollTarget.removeEventListener('scroll', this.onScrollDelegate);
+      this.scrollTarget.removeEventListener('scroll', this.onScroll);
       this.dispatcher.off();
       this.dispatcher = null;
-      this.onScrollDelegate = null;
+      this.onScroll = null;
       this.updateScrollPosition = null;
-      this.onNextFrameDelegate = null;
+      this.onNextFrame = null;
       this.scrollTarget = null;
       this.destroyed = true;
     }
@@ -121,12 +121,11 @@ FastScroll.prototype = {
   },
 
   onScroll: function() {
-    this.updateScrollPosition();
     this.currentStopFrames = 0;
-
     if (this.firstRender) {
       this.firstRender = false;
       if (this.scrollY > 1) {
+        this.updateScrollPosition();
         this.dispatchEvent('scroll:progress');
         return;
       }
@@ -136,7 +135,7 @@ FastScroll.prototype = {
       this.scrolling = true;
       this.dispatchEvent('scroll:start');
       if (this.animationFrame) {
-        this.nextFrameID = requestAnimationFrame(this.onNextFrameDelegate);
+        this.nextFrameID = requestAnimationFrame(this.onNextFrame);
       }
     }
     if (!this.animationFrame) {
@@ -150,13 +149,7 @@ FastScroll.prototype = {
   },
 
   onNextFrame: function() {
-    if (this.destroyed) {
-      return;
-    }
-
-    if (this.animationFrame) {
-      this.updateScrollPosition();
-    }
+    this.updateScrollPosition();
 
     this.speedY = this.lastScrollY - this.scrollY;
     this.speedX = this.lastScrollX - this.scrollX;
@@ -164,19 +157,16 @@ FastScroll.prototype = {
     this.lastScrollY = this.scrollY;
     this.lastScrollX = this.scrollX;
 
-    if (this.animationFrame) {
-      if (this.speedY === 0 && this.scrolling && (this.currentStopFrames++ > this.stopFrames)) {
-        this.onScrollStop();
-        return;
-      }
+    if (this.animationFrame && this.scrolling && this.speedY === 0 && (this.currentStopFrames++ > this.stopFrames)) {
+      this.onScrollStop();
+      return;
     }
 
     this.dispatchEvent('scroll:progress');
 
     if (this.animationFrame) {
-      this.nextFrameID = requestAnimationFrame(this.onNextFrameDelegate);
+      this.nextFrameID = requestAnimationFrame(this.onNextFrame);
     }
-
   },
 
   onScrollStop: function() {
@@ -204,6 +194,7 @@ FastScroll.prototype = {
       scrollY: eventObject.scrollY,
       scrollX: eventObject.scrollX
     };
+
     eventObject.fastScroll = this;
     eventObject.target = this.scrollTarget;
     this.dispatcher.dispatch(type, eventObject);
