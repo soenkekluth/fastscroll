@@ -10,15 +10,14 @@
 </head>
 
 <body>
-  <div class="fixed"></div>
-  <div id="boxContainer"></div>
   <div class="follower"></div>
+  <div id="boxContainer"></div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.1/jquery.js"></script>
   <script src="../dist/fastscroll.js"></script>
   <script>
 
   var numBoxes = 100;
-  var fixed = document.querySelector('.fixed');
   var follower = document.querySelector('.follower');
   var boxContainer = document.querySelector('#boxContainer');
 
@@ -33,33 +32,54 @@
   }
 
 
+  function updatePosition(){
+    var scrollY = -boxContainer.getBoundingClientRect().top; //window.scrollY || window.pageYOffset || 0 || boxContainer.getBoundingClientRect().top;
+    follower.style.top = scrollY + 'px';
+  }
+
+  document.body.addEventListener('scroll', function(){
+    window.requestAnimationFrame(updatePosition);
+  }, false);
+
+
+  // document.body.addEventListener('scroll', function(e){
+  //   var scrollY = window.scrollY || window.pageYOffset || 0;
+
+  //    console.log($('html').offset());
+  //    console.log($('body').offset());
+  //    console.log($('body').position());
+  //    console.log($('html').position());
+  //    console.log($('body').scrollTop());
+  //    console.log($('html').scrollTop());
+  //    console.log($(window).scrollTop());
+  //    console.log($('#boxContainer').scrollTop());
+  //     // window.requestAnimationFrame(updatePosition);
+  //   }, false);
 
   // window.addEventListener('scroll', function(){
-  //   var scrollY = this.window.scrollY || this.window.pageYOffset || 0;
-  //   follower.style.top = scrollY + 'px';
+  //   console.log('window scroll')
+  //   // window.requestAnimationFrame(updatePosition);
   // }, false);
 
-  var fastScroll = new FastScroll(window, {animationFrame: true});
+  // var fastScroll = new FastScroll(window, {animationFrame: true});
 
-  // console.log(fastScroll === new FastScroll());
-  // console.log(fastScroll === new FastScroll());
-  // console.log(new FastScroll() === new FastScroll());
-  // console.log(FastScroll.___instanceMap);
+  // fastScroll.on('scroll:start', function(event){
+  //   // console.log('scroll:start', event.scrollY);
+  //   // follower.style.top = event.scrollY + 'px';
+  //   updatePosition();
+  // });
 
-  fastScroll.on('scroll:start', function(event){
-    // console.log('scroll:start', event.scrollY);
-    follower.style.top = event.scrollY + 'px';
-  });
+  // fastScroll.on('scroll:progress', function(event){
+  //   // console.log('scroll:progress', event.scrollY);
+  //   // follower.style.top = event.scrollY + 'px';
+  //   updatePosition();
+  // });
 
-  fastScroll.on('scroll:progress', function(event){
-    // console.log('scroll:progress', event.scrollY);
-    follower.style.top = event.scrollY + 'px';
-  });
-
-  fastScroll.on('scroll:stop', function(event){
-    // console.log('=======================================================> scroll:stop', event.scrollY);
-    follower.style.top = event.scrollY + 'px';
-  });
+  // fastScroll.on('scroll:stop', function(event){
+  //   // console.log('scroll:stop', event.scrollY);
+  //   // follower.style.top = event.scrollY + 'px';
+  //   updatePosition();
+  // });
 
 
   </script>

@@ -3,6 +3,23 @@ body {
   margin: 0;
   padding:0;
 }
+
+/*
+  solves flickering
+  http://stackoverflow.com/questions/4980502/weird-webkit-issue-with-position-fixed
+*/
+html, body {
+  height:100%;
+  width:100%;
+  overflow:auto;
+}
+
+body {
+  position: relative;
+  // overflow-y:scroll;
+  // position: relative;
+}
+
 .box {
   height: 0;
   padding-top: 20%;
@@ -11,16 +28,7 @@ body {
 .box:nth-child(odd) {
   background: #919191;
 }
-.fixed {
-  width: 0;
-  height: 0;
-  position: fixed;
-  z-index: -1;
-  top:0;
-   // -webkit-backface-visibility: hidden;
-   //         backface-visibility: hidden;
 
-}
 .follower {
   position: absolute;
   z-index: 100;

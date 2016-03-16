@@ -73,7 +73,7 @@ FastScroll.prototype = {
   init: function() {
     this.dispatcher = new EventDispatcher();
     this.animationFrame = this.options.animationFrame;
-    this.updateScrollPosition = (this.scrollTarget === window) ? delegate(this, this.updateWindowScrollPosition) : delegate(this, this.updateElementScrollPosition);
+    this.updateScrollPosition = (this.scrollTarget === window || this.scrollTarget === document.body) ? delegate(this, this.updateWindowScrollPosition) : delegate(this, this.updateElementScrollPosition);
     this.updateScrollPosition();
     this.trigger = this.dispatchEvent;
     this.lastEvent.scrollY = this.scrollY;
@@ -95,7 +95,11 @@ FastScroll.prototype = {
       this.onNextFrame = null;
       this.scrollTarget = null;
       this.destroyed = true;
+
+      return null;
     }
+
+    return this;
   },
 
   getAttributes: function() {
@@ -111,8 +115,8 @@ FastScroll.prototype = {
   },
 
   updateWindowScrollPosition: function() {
-    this.scrollY = this.scrollTarget.scrollY || this.scrollTarget.pageYOffset || 0;
-    this.scrollX = this.scrollTarget.scrollX || this.scrollTarget.pageXOffset || 0;
+    this.scrollY = window.scrollY || window.pageYOffset || 0;
+    this.scrollX = window.scrollX || window.pageXOffset || 0;
   },
 
   updateElementScrollPosition: function() {
@@ -185,17 +189,17 @@ FastScroll.prototype = {
   dispatchEvent: function(type, eventObject) {
     eventObject = eventObject || this.getAttributes();
 
-    if (this.lastEvent.type === type && this.lastEvent.scrollY === eventObject.scrollY && this.lastEvent.scrollX === eventObject.scrollX) {
-      return;
-    }
+    // if (this.lastEvent.type === type && this.lastEvent.scrollY === eventObject.scrollY && this.lastEvent.scrollX === eventObject.scrollX) {
+    //   return;
+    // }
 
-    this.lastEvent = {
-      type: type,
-      scrollY: eventObject.scrollY,
-      scrollX: eventObject.scrollX
-    };
+    // this.lastEvent = {
+    //   type: type,
+    //   scrollY: eventObject.scrollY,
+    //   scrollX: eventObject.scrollX
+    // };
 
-    eventObject.fastScroll = this;
+    // eventObject.fastScroll = this;
     eventObject.target = this.scrollTarget;
     this.dispatcher.dispatch(type, eventObject);
   },
