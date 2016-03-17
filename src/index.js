@@ -18,6 +18,11 @@ var FastScroll = function(scrollTarget, options) {
   if (!this.options.hasOwnProperty('animationFrame')) {
     this.options.animationFrame = true;
   }
+
+  if(typeof window.requestAnimationFrame !== 'function') {
+    this.options.animationFrame = false;
+  }
+
   this.scrollTarget = scrollTarget;
   this.init();
 };
