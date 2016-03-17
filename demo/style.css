@@ -4,21 +4,6 @@ body {
   padding:0;
 }
 
-/*
-  solves flickering
-  http://stackoverflow.com/questions/4980502/weird-webkit-issue-with-position-fixed
-*/
-// html, body {
-//   height:100%;
-//   width:100%;
-//   overflow:auto;
-// }
-
-// body {
-//   position: relative;
-//   // overflow-y:scroll;
-//   // position: relative;
-// }
 
 .box {
   height: 0;

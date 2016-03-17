@@ -14,7 +14,10 @@ var _instanceMap = {};
 
 var FastScroll = function(scrollTarget, options) {
   scrollTarget = scrollTarget || window;
-  this.options = options || { animationFrame: true };
+  this.options = options || {};
+  if (!this.options.hasOwnProperty('animationFrame')) {
+    this.options.animationFrame = true;
+  }
   this.scrollTarget = scrollTarget;
   this.init();
 };
@@ -70,23 +73,33 @@ FastScroll.prototype = {
   scrolling: false,
 
   init: function() {
-    console.log('init');
     this.dispatcher = new EventDispatcher();
-    this.animationFrame = this.options.animationFrame;
-    this.updateScrollPosition = (this.scrollTarget === window /*|| this.scrollTarget === document.body*/ ) ? delegate(this, this.updateWindowScrollPosition) : delegate(this, this.updateElementScrollPosition);
+    this.updateScrollPosition = (this.scrollTarget === window) ? delegate(this, this.updateWindowScrollPosition) : delegate(this, this.updateElementScrollPosition);
     this.updateScrollPosition();
     this.trigger = this.dispatchEvent;
     this.lastEvent.scrollY = this.scrollY;
     this.lastEvent.scrollX = this.scrollX;
     this.onScroll = delegate(this, this.onScroll);
     this.onNextFrame = delegate(this, this.onNextFrame);
-    this.scrollTarget.addEventListener('scroll', this.onScroll, false);
+    if (this.scrollTarget.addEventListener) {
+      this.scrollTarget.addEventListener('mousewheel', this.onScroll, false);
+      this.scrollTarget.addEventListener('scroll', this.onScroll, false);
+    } else if (this.scrollTarget.attachEvent) {
+      this.scrollTarget.attachEvent('onmousewheel', this.onScroll);
+      this.scrollTarget.attachEvent('scroll', this.onScroll);
+    }
   },
 
   destroy: function() {
     if (!this.destroyed) {
       this.cancelNextFrame();
-      this.scrollTarget.removeEventListener('scroll', this.onScroll);
+      if (this.scrollTarget.addEventListener) {
+        this.scrollTarget.removeEventListener('mousewheel', this.onScroll);
+        this.scrollTarget.removeEventListener('scroll', this.onScroll);
+      } else if (this.scrollTarget.attachEvent) {
+        this.scrollTarget.detachEvent('onmousewheel', this.onScroll);
+        this.scrollTarget.detachEvent('scroll', this.onScroll);
+      }
       this.dispatcher.off();
       this.dispatcher = null;
       this.onScroll = null;
@@ -133,11 +146,11 @@ FastScroll.prototype = {
     if (!this.scrolling) {
       this.scrolling = true;
       this.dispatchEvent('scroll:start');
-      if (this.animationFrame) {
+      if (this.options.animationFrame) {
         this.nextFrameID = requestAnimationFrame(this.onNextFrame);
       }
     }
-    if (!this.animationFrame) {
+    if (!this.options.animationFrame) {
       clearTimeout(this.timeout);
       this.onNextFrame();
       var self = this;
@@ -148,6 +161,7 @@ FastScroll.prototype = {
   },
 
   onNextFrame: function() {
+
     this.updateScrollPosition();
 
     this.speedY = this.lastScrollY - this.scrollY;
@@ -156,21 +170,21 @@ FastScroll.prototype = {
     this.lastScrollY = this.scrollY;
     this.lastScrollX = this.scrollX;
 
-    if (this.animationFrame && this.scrolling && this.speedY === 0 && (this.currentStopFrames++ > this.stopFrames)) {
+    if (this.options.animationFrame && (this.scrolling && this.speedY === 0 && (this.currentStopFrames++ > this.stopFrames))) {
       this.onScrollStop();
       return;
     }
 
     this.dispatchEvent('scroll:progress');
 
-    if (this.animationFrame) {
+    if (this.options.animationFrame) {
       this.nextFrameID = requestAnimationFrame(this.onNextFrame);
     }
   },
 
   onScrollStop: function() {
     this.scrolling = false;
-    if (this.animationFrame) {
+    if (this.options.animationFrame) {
       this.cancelNextFrame();
       this.currentStopFrames = 0;
     }
@@ -184,15 +198,15 @@ FastScroll.prototype = {
   dispatchEvent: function(type, eventObject) {
     eventObject = eventObject || this.getAttributes();
 
-    // if (this.lastEvent.type === type && this.lastEvent.scrollY === eventObject.scrollY && this.lastEvent.scrollX === eventObject.scrollX) {
-    //   return;
-    // }
+    if (this.lastEvent.type === type && this.lastEvent.scrollY === eventObject.scrollY && this.lastEvent.scrollX === eventObject.scrollX) {
+      return;
+    }
 
-    // this.lastEvent = {
-    //   type: type,
-    //   scrollY: eventObject.scrollY,
-    //   scrollX: eventObject.scrollX
-    // };
+    this.lastEvent = {
+      type: type,
+      scrollY: eventObject.scrollY,
+      scrollX: eventObject.scrollX
+    };
 
     // eventObject.fastScroll = this;
     eventObject.target = this.scrollTarget;

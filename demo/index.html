@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, minimal-ui">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <title>Fastscroll Demo</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -12,11 +12,8 @@
 <body>
   <div class="follower"></div>
   <div id="boxContainer"></div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.1/jquery.js"></script>
   <script src="../dist/fastscroll.js"></script>
   <script>
-
   var numBoxes = 100;
   var follower = document.querySelector('.follower');
   var boxContainer = document.querySelector('#boxContainer');
@@ -25,60 +22,30 @@
     var box = document.createElement('div');
     box.className = 'box';
     boxContainer.appendChild(box);
-
-    // var p = document.createElement('p');
-    // p.appendChild(document.createTextNode('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod  tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,   quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse         cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'));
-    // fixed.appendChild(p);
   }
 
 
-  // function updatePosition(){
-  //   var scrollY = -boxContainer.getBoundingClientRect().top; //window.scrollY || window.pageYOffset || 0 || boxContainer.getBoundingClientRect().top;
-  //   follower.style.top = scrollY + 'px';
-  // }
-
-  // document.body.addEventListener('scroll', function(){
+  // window.addEventListener('scroll', function(){
+  //   // updatePosition();
   //   window.requestAnimationFrame(updatePosition);
   // }, false);
 
+  var fastScroll = new FastScroll(window, {animationFrame:false});
 
-  // document.body.addEventListener('scroll', function(e){
-  //   var scrollY = window.scrollY || window.pageYOffset || 0;
-
-  //    console.log($('html').offset());
-  //    console.log($('body').offset());
-  //    console.log($('body').position());
-  //    console.log($('html').position());
-  //    console.log($('body').scrollTop());
-  //    console.log($('html').scrollTop());
-  //    console.log($(window).scrollTop());
-  //    console.log($('#boxContainer').scrollTop());
-  //     // window.requestAnimationFrame(updatePosition);
-  //   }, false);
-
-  // window.addEventListener('scroll', function(){
-  //   console.log('window scroll')
-  //   // window.requestAnimationFrame(updatePosition);
-  // }, false);
-
-  var fastScroll = new FastScroll(window);
-
-  fastScroll.on('scroll:start', function(event){
+  fastScroll.on('scroll:start', function(event) {
     console.log('scroll:start', event.scrollY);
     follower.style.top = event.scrollY + 'px';
   });
 
-  fastScroll.on('scroll:progress', function(event){
+  fastScroll.on('scroll:progress', function(event) {
     console.log('scroll:progress', event.scrollY);
     follower.style.top = event.scrollY + 'px';
   });
 
-  fastScroll.on('scroll:stop', function(event){
+  fastScroll.on('scroll:stop', function(event) {
     console.log('scroll:stop', event.scrollY);
     follower.style.top = event.scrollY + 'px';
   });
-
-
   </script>
 </body>
 
