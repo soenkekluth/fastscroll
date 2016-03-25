@@ -1,4 +1,5 @@
-# FastScroll - performant custom scroll events and custom scroll propertys
+# FastScroll
+### performant custom scroll events and custom scroll propertys
 
 FastScroll gives you custom scroll events like scroll:start, scroll:progress and scroll:end for better event / action handling
 the events are triggered only in animation frames for the most performant way of default DOM manipulation.
