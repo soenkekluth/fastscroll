@@ -33,10 +33,10 @@ https://cdn.rawgit.com/soenkekluth/fastscroll/master/demo/index.html
 
 ### js
 ```javascript
-var FastsSroll = require('fastscroll');
-var fastScroll = new FastsSroll(); // takes window as scroll target
+var FastScroll = require('fastscroll');
+var fastScroll = new FastScroll(); // takes window as scroll target
 // or
-new FastsSroll(yourElement)
+new FastScroll(yourElement)
 
 fastScroll.on('scroll:start', function(event) {
   console.log('scroll:start', event);
