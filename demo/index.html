@@ -24,13 +24,7 @@
     boxContainer.appendChild(box);
   }
 
-
-  // window.addEventListener('scroll', function(){
-  //   // updatePosition();
-  //   window.requestAnimationFrame(updatePosition);
-  // }, false);
-
-  var fastScroll = new FastScroll(window, {animationFrame:false});
+  var fastScroll = new FastScroll();
 
   fastScroll.on('scroll:start', function(event) {
     console.log('scroll:start', event.scrollY);
