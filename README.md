@@ -1,68 +1,52 @@
-# fastscroll
-Performant Custom Scroll Events
+# FastScroll - performant custom scroll events and custom scroll propertys
 
+FastScroll gives you custom scroll events like scroll:start, scroll:progress and scroll:end for better event / action handling
+the events are triggered only in animation frames for the most performant way of default DOM manipulation.
 
-
-
-
-if you need any polyfills like customevents or animationFrame:
-
+further more it adds special propertys to the scroll state :
 ```
-/**
- * [requestAnimationFrame Polyfill]
- */
-if (typeof window.requestAnimationFrame === 'undefined') {
-  (function() {
-    'use strict';
-    var lastTime = 0;
-    var vendors = ['ms', 'moz', 'webkit', 'o'];
-    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-      window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
-      window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] || window[vendors[x] + 'CancelRequestAnimationFrame'];
-    }
+scrollY
+scrollX
+speedY
+speedX
+angle // TODO
+directionY
+directionX
+```
 
-    if (!window.requestAnimationFrame) {
-      window.requestAnimationFrame = function(callback, element) {
+FastScroll will only be instanciated once for the same scroll target to save memory and optimize the performance.
 
-        var currTime = new Date().getTime();
-        var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-        var id = window.setTimeout(function() {
-            callback(currTime + timeToCall);
-          },
-          timeToCall);
-        lastTime = currTime + timeToCall;
-        return id;
-      };
-    }
 
-    if (!window.cancelAnimationFrame) {
-      window.cancelAnimationFrame = function(id) {
-        clearTimeout(id);
-      };
-    }
-  }());
-}
+### Dependencies
+none!
 
-/**
- * [CustomEvent Polyfill]
- */
-if (typeof window.CustomEvent === 'undefined') {
-  (function() {
-    'use strict';
-    window.CustomEvent = function(event, params) {
-      var evt;
-      params = params || {
-        bubbles: false,
-        cancelable: false,
-        detail: undefined
-      };
-      evt = document.createEvent('CustomEvent');
-      evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-      return evt;
-    };
+### Browser support
+IE >= 9, *
 
-    window.CustomEvent.prototype = window.Event.prototype;
-  }());
-}
+### install
+```
+npm install fastscroll
+```
+### demo (will be updated soon)
+https://cdn.rawgit.com/soenkekluth/fastscroll/master/demo/index.html
+
+### js
+```javascript
+var FastsSroll = require('fastscroll');
+var fastScroll = new FastsSroll(); // takes window as scroll target
+// or
+new FastsSroll(yourElement)
+
+fastScroll.on('scroll:start', function(event) {
+  console.log('scroll:start', event);
+});
+
+fastScroll.on('scroll:progress', function(event) {
+  console.log('scroll:progress', event);
+});
+
+fastScroll.on('scroll:stop', function(event) {
+  console.log('scroll:stop', event);
+});
 
 ```
