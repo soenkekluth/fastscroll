@@ -13,8 +13,17 @@ var EventDispatcher = require('eventdispatcher');
 var _instanceMap = {};
 
 var FastScroll = function(scrollTarget, options) {
+
   scrollTarget = scrollTarget || window;
+
+  if(FastScroll.hasScrollTarget(scrollTarget)) {
+    return FastScroll.getInstance(scrollTarget);
+  }
+
+  _instanceMap[scrollTarget] = this;
+
   this.options = options || {};
+
   if (!this.options.hasOwnProperty('animationFrame')) {
     this.options.animationFrame = true;
   }
@@ -31,13 +40,12 @@ FastScroll.___instanceMap = _instanceMap;
 
 FastScroll.getInstance = function(scrollTarget, options) {
   scrollTarget = scrollTarget || window;
-  return _instanceMap[scrollTarget] || (_instanceMap[scrollTarget] = new FastScroll(scrollTarget, options));
+  return _instanceMap[scrollTarget] || (new FastScroll(scrollTarget, options));
 };
 
 FastScroll.hasInstance = function(scrollTarget) {
   return _instanceMap[scrollTarget] !== undefined;
 };
-
 
 FastScroll.hasScrollTarget = FastScroll.hasInstance;
 
@@ -78,6 +86,7 @@ FastScroll.prototype = {
   scrolling: false,
 
   init: function() {
+    console.log('init');
     this.dispatcher = new EventDispatcher();
     this.updateScrollPosition = (this.scrollTarget === window) ? delegate(this, this.updateWindowScrollPosition) : delegate(this, this.updateElementScrollPosition);
     this.updateScrollPosition();
