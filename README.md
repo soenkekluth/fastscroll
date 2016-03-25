@@ -29,7 +29,7 @@ IE >= 9, *
 npm install fastscroll
 ```
 ### demo (will be updated soon)
-https://cdn.rawgit.com/soenkekluth/fastscroll/master/demo/index.html
+https://rawgit.com/soenkekluth/fastscroll/master/demo/index.html
 please see the console.logs for now
 
 ### js
