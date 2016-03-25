@@ -1,6 +1,6 @@
 {
   "name": "fastscroll",
-  "version": "1.7.4",
+  "version": "1.7.5",
   "description": "Performant Custom Scroll Events",
   "main": "src/index.js",
   "scripts": {
@@ -16,10 +16,20 @@
     "url": "git+https://github.com/soenkekluth/fastscroll.git"
   },
   "keywords": [
+    "browser",
     "scroll",
+    "onscroll",
+    "animationframe",
+    "animation",
+    "scroll-events",
+    "scrollevents",
+    "scrollbehavior",
+    "scroll-behavior",
     "fast",
+    "jankfree",
+    "jank-free",
     "perfomance",
-    "onScrollStop"
+    "perfomant"
   ],
   "author": "Sönke Kluth <soenke.kluth@gmail.com> (http://soenkekluth.com/)",
   "license": "MIT",
