@@ -21,4 +21,17 @@ body {
   width:100px;
   height:100px;
   border-radius: 50px;
+  left: 50%;
+  margin-left: -50px;
+  margin-top: 4%;
+}
+
+
+.message {
+  font-size: 1.4em;
+  display: block;
+  width: 100%;
+  position: fixed;
+  text-align: center;
+  top: 30%;
 }
