@@ -86,7 +86,6 @@ FastScroll.prototype = {
   scrolling: false,
 
   init: function() {
-    console.log('init');
     this.dispatcher = new EventDispatcher();
     this.updateScrollPosition = (this.scrollTarget === window) ? delegate(this, this.updateWindowScrollPosition) : delegate(this, this.updateElementScrollPosition);
     this.updateScrollPosition();
