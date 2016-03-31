@@ -25,10 +25,11 @@
     boxContainer.appendChild(box);
   }
 
+  // var fastScroll = new FastScroll(null, {animationFrame:false});
   var fastScroll = new FastScroll();
 
   fastScroll.on('scroll:start', function(event) {
-    console.log('scroll:start', event.scrollY);
+    console.log('scroll:=========> start', event.scrollY);
     follower.style.top = event.scrollY + 'px';
   });
 
@@ -38,7 +39,7 @@
   });
 
   fastScroll.on('scroll:stop', function(event) {
-    console.log('scroll:stop', event.scrollY);
+    console.log('scroll:========> stop', event.scrollY);
     follower.style.top = event.scrollY + 'px';
   });
   </script>
