@@ -18,3 +18,5 @@ node_modules
 .sass-cache
 .gulp-cache
 
+fastscroll.js.map
+index-new.js
