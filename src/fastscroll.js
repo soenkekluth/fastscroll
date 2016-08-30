@@ -1,6 +1,6 @@
 import delegate from 'delegatejs';
 
-const _instanceMap = new Map();
+const _instanceMap = {};
 
 const unprefixAnimationFrame = () => {
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
@@ -10,14 +10,14 @@ const unprefixAnimationFrame = () => {
 export default class FastScroll {
 
   static getInstance = (scrollTarget, options) => {
-    if(!_instanceMap.has(scrollTarget)){
-      _instanceMap.set(scrollTarget, new FastScroll(scrollTarget, options));
+    if(!_instanceMap[scrollTarget]){
+      _instanceMap[scrollTarget] =  new FastScroll(scrollTarget, options);
     }
-    return _instanceMap.get(scrollTarget);
+    return _instanceMap[scrollTarget];
   };
 
   static hasInstance = (scrollTarget) => {
-    return _instanceMap.has(scrollTarget);
+    return _instanceMap[scrollTarget];
   };
 
   static hasScrollTarget = FastScroll.hasInstance;
@@ -25,7 +25,7 @@ export default class FastScroll {
   static clearInstance = (scrollTarget = window) => {
     if (FastScroll.hasInstance(scrollTarget)) {
       FastScroll.getInstance(scrollTarget).destroy();
-      _instanceMap.delete(scrollTarget);
+      delete _instanceMap[scrollTarget];
     }
   };
 
@@ -47,7 +47,7 @@ export default class FastScroll {
     this.scrollTarget = scrollTarget;
     this.options = options;
 
-    _instanceMap.set(this.scrollTarget, this);
+    _instanceMap[scrollTarget] = this;
 
     if (!this.options.hasOwnProperty('animationFrame')) {
       this.options.animationFrame = true;

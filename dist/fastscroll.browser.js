@@ -66,7 +66,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var _instanceMap = new Map();
+var _instanceMap = {};
 
 var unprefixAnimationFrame = function unprefixAnimationFrame() {
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
@@ -87,7 +87,7 @@ var FastScroll = function () {
     this.scrollTarget = scrollTarget;
     this.options = options;
 
-    _instanceMap.set(this.scrollTarget, this);
+    _instanceMap[scrollTarget] = this;
 
     if (!this.options.hasOwnProperty('animationFrame')) {
       this.options.animationFrame = true;
@@ -249,14 +249,14 @@ var FastScroll = function () {
 }();
 
 FastScroll.getInstance = function (scrollTarget, options) {
-  if (!_instanceMap.has(scrollTarget)) {
-    _instanceMap.set(scrollTarget, new FastScroll(scrollTarget, options));
+  if (!_instanceMap[scrollTarget]) {
+    _instanceMap[scrollTarget] = new FastScroll(scrollTarget, options);
   }
-  return _instanceMap.get(scrollTarget);
+  return _instanceMap[scrollTarget];
 };
 
 FastScroll.hasInstance = function (scrollTarget) {
-  return _instanceMap.has(scrollTarget);
+  return _instanceMap[scrollTarget];
 };
 
 FastScroll.hasScrollTarget = FastScroll.hasInstance;
@@ -266,7 +266,7 @@ FastScroll.clearInstance = function () {
 
   if (FastScroll.hasInstance(scrollTarget)) {
     FastScroll.getInstance(scrollTarget).destroy();
-    _instanceMap.delete(scrollTarget);
+    delete _instanceMap[scrollTarget];
   }
 };
 
