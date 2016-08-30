@@ -65,6 +65,12 @@ var _instanceMap = {};
  var EventDispatcher = function() {
    this._eventMap = {};
    this._destroyed = false;
+
+   //Method Map
+   this.on = this.bind = this.addEventListener = this.addListener;
+   this.off = this.unbind = this.removeEventListener = this.removeListener;
+   this.once = this.one = this.addListenerOnce;
+   this.emmit = this.trigger = this.dispatchEvent = this.dispatch;
  };
 
  EventDispatcher.getInstance = function(key){
@@ -167,13 +173,6 @@ var _instanceMap = {};
    }
    this._destroyed = true;
  };
-
-
- //Method Map
- EventDispatcher.prototype.on = EventDispatcher.prototype.bind = EventDispatcher.prototype.addEventListener = EventDispatcher.prototype.addListener;
- EventDispatcher.prototype.off = EventDispatcher.prototype.unbind = EventDispatcher.prototype.removeEventListener = EventDispatcher.prototype.removeListener;
- EventDispatcher.prototype.once = EventDispatcher.prototype.one = EventDispatcher.prototype.addListenerOnce;
- EventDispatcher.prototype.trigger = EventDispatcher.prototype.dispatchEvent = EventDispatcher.prototype.dispatch;
 
  module.exports = EventDispatcher;
 
