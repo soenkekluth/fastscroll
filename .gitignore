@@ -9,5 +9,7 @@ node_modules
 /bower_components
 /TODO
 
+.tern-port
+
 fastscroll.js.map
 index-new.js

@@ -223,13 +223,13 @@ var FastScroll = function (_EventDispatcher) {
     if (FastScroll.hasScrollTarget(scrollTarget)) {
       var _ret;
 
-      return _ret = instance, _possibleConstructorReturn(_this, _ret);
+      return _ret = FastScroll.getInstance(scrollTarget), _possibleConstructorReturn(_this, _ret);
     }
 
     _this.scrollTarget = scrollTarget;
     _this.options = options;
 
-    _instanceMap[scrollTarget] = instance;
+    _instanceMap[scrollTarget] = _this;
 
     if (!_this.options.hasOwnProperty('animationFrame')) {
       _this.options.animationFrame = true;

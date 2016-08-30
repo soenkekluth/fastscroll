@@ -46,13 +46,13 @@ export default class FastScroll extends EventDispatcher {
     const instance = super();
 
     if (FastScroll.hasScrollTarget(scrollTarget)) {
-      return instance;
+      return FastScroll.getInstance(scrollTarget);
     }
 
     this.scrollTarget = scrollTarget;
     this.options = options;
 
-    _instanceMap[scrollTarget] = instance;
+    _instanceMap[scrollTarget] = this;
 
     if (!this.options.hasOwnProperty('animationFrame')) {
       this.options.animationFrame = true;
