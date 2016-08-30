@@ -1,16 +1,17 @@
 {
   "name": "fastscroll",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Performant Custom Scroll Events",
-  "main": "dist/fastscroll.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-js": "browserify --fast -e src/index.js -d --standalone FastScroll -t babelify | derequire | exorcist dist/fastscroll.js.map > dist/fastscroll.js",
-    "dist-js": "BABEL_ENV=publish browserify -e src/index.js --standalone FastScroll -t babelify | derequire > dist/fastscroll.js",
-    "dist-js-min": "uglifyjs -cmv dist/fastscroll.js > dist/fastscroll.min.js",
-    "dist": "npm run dist-js && npm run dist-js-min",
+    "build-js": "browserify --fast -e src/index.js -d --standalone FastScroll -t babelify | derequire | exorcist dist/fastscroll.browser.js.map > dist/fastscroll.browser.js",
+    "dist-js": "BABEL_ENV=publish browserify -e src/index.js --standalone FastScroll -t babelify | derequire > dist/fastscroll.browser.js",
+    "dist-js-min": "uglifyjs -cmv dist/fastscroll.browser.js > dist/fastscroll.browser.min.js",
+    "dist": "npm run dist-js && npm run dist-js-min && npm run build-lib",
     "start": "run-p watch-js server",
-    "watch-js": "watchify -d --poll=100 --fast --standalone FastScroll -e src/index.js -t babelify -o 'exorcist dist/fastscroll.js.map > dist/fastscroll.js' -v",
+    "build-lib": "BABEL_ENV=production babel src -d dist",
+    "watch-js": "watchify -d --poll=100 --fast --standalone FastScroll -e src/index.js -t babelify -o 'exorcist dist/fastscroll.browser.js.map > dist/fastscroll.browser.js' -v",
     "server": "browser-sync start --no-ghost-mode --server --directory --files 'demo/**/**, dist/*.js' --startPath demo/index.html"
   },
   "repository": {
@@ -39,7 +40,9 @@
     "url": "https://github.com/soenkekluth/fastscroll/issues"
   },
   "homepage": "https://github.com/soenkekluth/fastscroll#readme",
-  "dependencies": {},
+  "dependencies": {
+    "delegatejs": "1.0.1"
+  },
   "devDependencies": {
     "babel-cli": "6.14.0",
     "babel-core": "6.14.0",
@@ -55,7 +58,6 @@
     "babelify": "7.3.0",
     "browser-sync": "2.14.0",
     "browserify": "13.1.0",
-    "delegatejs": "1.0.1",
     "derequire": "2.0.3",
     "exorcist": "0.4.0",
     "npm-run-all": "3.0.0",

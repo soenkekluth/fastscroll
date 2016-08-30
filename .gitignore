@@ -1,22 +1,13 @@
 # OS or Editor folders
 .DS_Store
-Thumbs.db
-.cache
-.project
-.settings
-.tmproj
 *.sublime-workspace
-.idea
 npm-debug.log
 
 # Project folders to ignore
 node_modules
 /material
 /bower_components
-/test/bower_components
 /TODO
-.sass-cache
-.gulp-cache
 
 fastscroll.js.map
 index-new.js
