@@ -49,6 +49,135 @@
 })(this);
 
 },{}],2:[function(_dereq_,module,exports){
+ 'use strict';
+
+ function isEmpty(obj) {
+   for (var prop in obj) {
+     if (obj.hasOwnProperty(prop)){
+       return false;
+     }
+   }
+   return true;
+ }
+
+var _instanceMap = {};
+
+ var EventDispatcher = function() {
+   this._eventMap = {};
+   this._destroyed = false;
+ };
+
+ EventDispatcher.getInstance = function(key){
+  if(!key){
+    throw new Error('key must be');
+  }
+  return _instanceMap[key] || (_instanceMap[key] =  new EventDispatcher());
+ };
+
+
+ EventDispatcher.prototype.addListener = function(event, listener) {
+   var listeners = this.getListener(event);
+   if (!listeners) {
+     this._eventMap[event] = [listener];
+     return true;
+   }
+
+   if (listeners.indexOf(listener) === -1) {
+     listeners.push(listener);
+     return true;
+   }
+   return false;
+ };
+
+ EventDispatcher.prototype.addListenerOnce = function(event, listener) {
+   var s = this;
+   var f2 = function() {
+     s.removeListener(event, f2);
+     return listener.apply(this, arguments);
+   };
+   return this.addListener(event, f2);
+ };
+
+ EventDispatcher.prototype.removeListener = function(event, listener) {
+
+  if(typeof listener === 'undefined'){
+    return this.removeAllListener(event);
+  }
+
+   var listeners = this.getListener(event);
+   if (listeners) {
+     var i = listeners.indexOf(listener);
+     if (i > -1) {
+       listeners = listeners.splice(i, 1);
+       if (!listeners.length) {
+         delete(this._eventMap[event]);
+       }
+       return true;
+     }
+   }
+   return false;
+ };
+
+ EventDispatcher.prototype.removeAllListener = function(event) {
+   var listeners = this.getListener(event);
+   if (listeners) {
+     this._eventMap[event].length = 0;
+     delete(this._eventMap[event]);
+    return true;
+   }
+   return false;
+ };
+
+ EventDispatcher.prototype.hasListener = function(event) {
+   return this.getListener(event) !== null;
+ };
+
+ EventDispatcher.prototype.hasListeners = function() {
+   return (this._eventMap !== null && this._eventMap !== undefined && !isEmpty(this._eventMap));
+ };
+
+ EventDispatcher.prototype.dispatch = function(eventType, eventObject) {
+   var listeners = this.getListener(eventType);
+
+   if (listeners) {
+     eventObject = eventObject || {};
+     eventObject.type = eventType;
+     eventObject.target = eventObject.target || this;
+
+     var i = -1;
+     while (++i < listeners.length) {
+       listeners[i](eventObject);
+     }
+     return true;
+   }
+   return false;
+ };
+
+ EventDispatcher.prototype.getListener = function(event) {
+   var result = this._eventMap ? this._eventMap[event] : null;
+   return (result || null);
+ };
+
+ EventDispatcher.prototype.destroy = function() {
+   if (this._eventMap) {
+     for (var i in this._eventMap) {
+       this.removeAllListener(i);
+     }
+     this._eventMap = null;
+   }
+   this._destroyed = true;
+ };
+
+
+ //Method Map
+ EventDispatcher.prototype.on = EventDispatcher.prototype.bind = EventDispatcher.prototype.addEventListener = EventDispatcher.prototype.addListener;
+ EventDispatcher.prototype.off = EventDispatcher.prototype.unbind = EventDispatcher.prototype.removeEventListener = EventDispatcher.prototype.removeListener;
+ EventDispatcher.prototype.once = EventDispatcher.prototype.one = EventDispatcher.prototype.addListenerOnce;
+ EventDispatcher.prototype.trigger = EventDispatcher.prototype.dispatchEvent = EventDispatcher.prototype.dispatch;
+
+ module.exports = EventDispatcher;
+
+},{}],3:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -62,67 +191,81 @@ var _delegatejs = _dereq_('delegatejs');
 
 var _delegatejs2 = _interopRequireDefault(_delegatejs);
 
+var _eventdispatcher = _dereq_('eventdispatcher');
+
+var _eventdispatcher2 = _interopRequireDefault(_eventdispatcher);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
 var _instanceMap = {};
 
-var unprefixAnimationFrame = function unprefixAnimationFrame() {
-  window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-  window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame;
-};
+var FastScroll = function (_EventDispatcher) {
+  _inherits(FastScroll, _EventDispatcher);
 
-var FastScroll = function () {
   function FastScroll() {
     var scrollTarget = arguments.length <= 0 || arguments[0] === undefined ? window : arguments[0];
+
+    var _this;
+
     var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     _classCallCheck(this, FastScroll);
 
+    var instance = (_this = _possibleConstructorReturn(this, _EventDispatcher.call(this)), _this);
+
     if (FastScroll.hasScrollTarget(scrollTarget)) {
-      return FastScroll.getInstance(scrollTarget);
+      var _ret;
+
+      return _ret = instance, _possibleConstructorReturn(_this, _ret);
     }
 
-    this.scrollTarget = scrollTarget;
-    this.options = options;
+    _this.scrollTarget = scrollTarget;
+    _this.options = options;
 
-    _instanceMap[scrollTarget] = this;
+    _instanceMap[scrollTarget] = instance;
 
-    if (!this.options.hasOwnProperty('animationFrame')) {
-      this.options.animationFrame = true;
+    if (!_this.options.hasOwnProperty('animationFrame')) {
+      _this.options.animationFrame = true;
     }
 
-    unprefixAnimationFrame();
+    FastScroll.unprefixAnimationFrame();
 
-    this.destroyed = false;
-    this.scrollY = 0;
-    this.scrollX = 0;
-    this.lastScrollY = 0;
-    this.lastScrollX = 0;
-    this.timeout = 0;
-    this.speedY = 0;
-    this.speedX = 0;
-    this.stopFrames = 5;
-    this.currentStopFrames = 0;
-    this.firstRender = true;
-    this.animationFrame = true;
+    _this.destroyed = false;
+    _this.scrollY = 0;
+    _this.scrollX = 0;
+    _this.lastScrollY = 0;
+    _this.lastScrollX = 0;
+    _this.timeout = 0;
+    _this.speedY = 0;
+    _this.speedX = 0;
+    _this.stopFrames = 5;
+    _this.currentStopFrames = 0;
+    _this.firstRender = true;
+    _this.animationFrame = true;
 
 
-    this.scrolling = false;
+    _this.scrolling = false;
 
-    this.init();
+    _this.init();
+
+    return _this;
   }
 
   FastScroll.prototype.init = function init() {
 
     this.updateScrollPosition = this.scrollTarget === window ? (0, _delegatejs2.default)(this, this.updateWindowScrollPosition) : (0, _delegatejs2.default)(this, this.updateElementScrollPosition);
     this.updateScrollPosition();
-    this.trigger = this.dispatchEvent;
-    this.attr = this.getAttributes;
-
     this.onScroll = (0, _delegatejs2.default)(this, this.onScroll);
     this.onNextFrame = (0, _delegatejs2.default)(this, this.onNextFrame);
+
     if (this.scrollTarget.addEventListener) {
       this.scrollTarget.addEventListener('scroll', this.onScroll, Can.passiveEvents ? { passive: true } : false);
     } else if (this.scrollTarget.attachEvent) {
@@ -133,11 +276,12 @@ var FastScroll = function () {
   FastScroll.prototype.destroy = function destroy() {
     if (!this.destroyed) {
       this.cancelNextFrame();
+
+      _EventDispatcher.prototype.destroy.call(this);
+
       if (this.scrollTarget.addEventListener) {
-        this.scrollTarget.removeEventListener('mousewheel', this.onScroll);
         this.scrollTarget.removeEventListener('scroll', this.onScroll);
       } else if (this.scrollTarget.attachEvent) {
-        this.scrollTarget.detachEvent('onmousewheel', this.onScroll);
         this.scrollTarget.detachEvent('scroll', this.onScroll);
       }
 
@@ -233,20 +377,15 @@ var FastScroll = function () {
     window.cancelAnimationFrame(this.nextFrameID);
   };
 
-  FastScroll.prototype.dispatchEvent = function dispatchEvent(event) {
-    this.scrollTarget.dispatchEvent(event);
-  };
-
-  FastScroll.prototype.on = function on(event, listener) {
-    return this.scrollTarget.addEventListener(event, listener);
-  };
-
-  FastScroll.prototype.off = function off(event, listener) {
-    return this.scrollTarget.removeEventListener(event, listener);
-  };
+  _createClass(FastScroll, [{
+    key: 'attr',
+    get: function get() {
+      return this.getAttributes();
+    }
+  }]);
 
   return FastScroll;
-}();
+}(_eventdispatcher2.default);
 
 FastScroll.getInstance = function (scrollTarget, options) {
   if (!_instanceMap[scrollTarget]) {
@@ -270,14 +409,19 @@ FastScroll.clearInstance = function () {
   }
 };
 
+FastScroll.unprefixAnimationFrame = function () {
+  window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+  window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame;
+};
+
 FastScroll.UP = 'up';
 FastScroll.DOWN = 'down';
 FastScroll.NONE = 'none';
 FastScroll.LEFT = 'left';
 FastScroll.RIGHT = 'right';
-FastScroll.EVENT_SCROLL_PROGRESS = new Event('scroll:progress');
-FastScroll.EVENT_SCROLL_START = new Event('scroll:start');
-FastScroll.EVENT_SCROLL_STOP = new Event('scroll:stop');
+FastScroll.EVENT_SCROLL_PROGRESS = 'scroll:progress';
+FastScroll.EVENT_SCROLL_START = 'scroll:start';
+FastScroll.EVENT_SCROLL_STOP = 'scroll:stop';
 exports.default = FastScroll;
 
 var Can = function () {
@@ -295,7 +439,7 @@ var Can = function () {
   }, {
     key: 'passiveEvents',
     get: function get() {
-      var _this = this;
+      var _this2 = this;
 
       if (!this._passiveEvents) {
         return this._passiveEvents;
@@ -304,7 +448,7 @@ var Can = function () {
       try {
         var opts = Object.defineProperty({}, 'passive', {
           get: function get() {
-            _this._supportsPassive = true;
+            _this2._supportsPassive = true;
           }
         });
         window.addEventListener("test", null, opts);
@@ -317,7 +461,7 @@ var Can = function () {
 
 module.exports = exports['default'];
 
-},{"delegatejs":1}],3:[function(_dereq_,module,exports){
+},{"delegatejs":1,"eventdispatcher":2}],4:[function(_dereq_,module,exports){
 'use strict';
 
 var _fastscroll = _dereq_('./fastscroll');
@@ -328,5 +472,5 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 module.exports = _fastscroll2.default;
 
-},{"./fastscroll":2}]},{},[3])(3)
+},{"./fastscroll":3}]},{},[4])(4)
 });

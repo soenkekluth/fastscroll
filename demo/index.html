@@ -7,43 +7,105 @@
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <title>Fastscroll Demo</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
 </head>
 
 <body>
   <p class="message">The Ball is position:absolute and repositioned on scroll (start / progress / end)</p>
   <div class="follower"></div>
-  <div id="boxContainer"></div>
+  <div id="boxContainer">
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+  </div>
   <script src="../dist/fastscroll.browser.js"></script>
   <script>
-
-
-  var fastScroll = new FastScroll();
-
-  var numBoxes = 100;
+  var prefixedTransform = PrefixFree.prefixSelector('transform');
   var follower = document.querySelector('.follower');
-  var boxContainer = document.querySelector('#boxContainer');
-
-  for (var i = 0; i < numBoxes; ++i) {
-    var box = document.createElement('div');
-    box.className = 'box';
-    boxContainer.appendChild(box);
-  }
 
   var fastScroll = new FastScroll();
 
   fastScroll.on('scroll:start', function(event) {
     console.log('scroll:=========> start', fastScroll.scrollY);
-    follower.style.top = fastScroll.scrollY + 'px';
+    follower.style[prefixedTransform] = 'translateY(' + fastScroll.scrollY + 'px)';
   });
 
   fastScroll.on('scroll:progress', function(event) {
-    console.log('scroll:progress', fastScroll.scrollY);
-    follower.style.top = fastScroll.scrollY + 'px';
+    console.log('scroll:progress', fastScroll.scrollY)
+
+    follower.style[prefixedTransform] = 'translateY(' + fastScroll.scrollY + 'px)';
   });
 
   fastScroll.on('scroll:stop', function(event) {
     console.log('scroll:========> stop', fastScroll.scrollY);
-    follower.style.top = fastScroll.scrollY + 'px';
+    follower.style[prefixedTransform] = 'translateY(' + fastScroll.scrollY + 'px)';
   });
   </script>
 </body>

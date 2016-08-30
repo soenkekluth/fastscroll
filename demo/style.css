@@ -1,3 +1,4 @@
+
 body {
   background-color: #f1f1f1;
   margin: 0;
@@ -15,15 +16,14 @@ body {
 }
 
 .follower {
-  position: absolute;
-  z-index: 100;
   background: black;
   width:100px;
   height:100px;
   border-radius: 50px;
-  left: 50%;
-  margin-left: -50px;
+  margin: 0 auto;
   margin-top: 4%;
+  -webkit-backface-visibility: none;
+          backface-visibility: none;
 }
 
 

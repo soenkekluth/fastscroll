@@ -1,8 +1,8 @@
 {
   "name": "fastscroll",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Performant Custom Scroll Events",
-  "main": "dist/index.js",
+  "main": "dist/fastscroll.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-js": "browserify --fast -e src/index.js -d --standalone FastScroll -t babelify | derequire | exorcist dist/fastscroll.browser.js.map > dist/fastscroll.browser.js",
@@ -41,7 +41,8 @@
   },
   "homepage": "https://github.com/soenkekluth/fastscroll#readme",
   "dependencies": {
-    "delegatejs": "1.0.1"
+    "delegatejs": "1.0.1",
+    "eventdispatcher": "1.3.0"
   },
   "devDependencies": {
     "babel-cli": "6.14.0",
