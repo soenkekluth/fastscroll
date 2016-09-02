@@ -1,7 +1,9 @@
 import delegate from 'delegatejs';
 import EventDispatcher from 'eventdispatcher';
+import { debounce } from 'lodash';
 
 const _instanceMap = {};
+
 
 export default class FastScroll extends EventDispatcher {
 
@@ -13,7 +15,7 @@ export default class FastScroll extends EventDispatcher {
   };
 
   static hasInstance = (scrollTarget) => {
-    return _instanceMap[scrollTarget];
+    return (typeof _instanceMap[scrollTarget] !== 'undefined');
   };
 
   static hasScrollTarget = FastScroll.hasInstance;
@@ -31,19 +33,37 @@ export default class FastScroll extends EventDispatcher {
     window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame;
   };
 
-  static UP = 'up';
-  static DOWN = 'down';
-  static NONE = 'none';
-  static LEFT = 'left';
-  static RIGHT = 'right';
+  static UP = -1;
+  static DOWN = 1;
+  static NONE = 0;
+  static LEFT = -2;
+  static RIGHT = 2;
 
   static EVENT_SCROLL_PROGRESS = 'scroll:progress';
   static EVENT_SCROLL_START = 'scroll:start';
   static EVENT_SCROLL_STOP = 'scroll:stop';
+  static EVENT_SCROLL_DOWN = 'scroll:down';
+  static EVENT_SCROLL_UP = 'scroll:up';
+
+
+  static directionToString(direction) {
+    switch (direction) {
+      case FastScroll.UP:
+        return 'up';
+      case FastScroll.DOWN:
+        return 'down';
+      case FastScroll.NONE:
+        return 'none';
+      case FastScroll.LEFT:
+        return 'left';
+      case FastScroll.RIGHT:
+        return 'right';
+    }
+  }
 
   constructor(scrollTarget = window, options = {}) {
 
-    const instance = super();
+    super();
 
     if (FastScroll.hasScrollTarget(scrollTarget)) {
       return FastScroll.getInstance(scrollTarget);
@@ -54,46 +74,41 @@ export default class FastScroll extends EventDispatcher {
 
     _instanceMap[scrollTarget] = this;
 
-    if (!this.options.hasOwnProperty('animationFrame')) {
-      this.options.animationFrame = true;
+    this.options.animationFrame = Can.animationFrame;
+    if (this.options.animationFrame) {
+      FastScroll.unprefixAnimationFrame();
     }
 
-    FastScroll.unprefixAnimationFrame();
-
     this.destroyed = false;
-    this.scrollY = 0;
-    this.scrollX = 0;
-    this.lastScrollY = 0;
-    this.lastScrollX = 0;
+    this._scrollY = 0;
+    this._scrollX = 0;
     this.timeout = 0;
-    this.speedY = 0;
-    this.speedX = 0;
-    this.stopFrames = 5;
+    this._speedY = 0;
+    this._speedX = 0;
+    this._lastSpeed = 0;
+    this._lastDirection = FastScroll.NONE;
+    this.stopFrames = 3;
     this.currentStopFrames = 0;
     this.firstRender = true;
     this.animationFrame = true;
-    // this.lastEvent= {
-    //   type: null,
-    //   scrollY: 0,
-    //   scrollX: 0
-    // };
+    this._directionY = FastScroll.NONE;
+    this._directionX = FastScroll.NONE;
 
     this.scrolling = false;
+    this.firstScroll = true;
 
     this.init();
 
   }
 
-  get attr() {
-    return this.getAttributes();
-  }
-
   init() {
 
-    this.updateScrollPosition = (this.scrollTarget === window) ? delegate(this, this.updateWindowScrollPosition) : delegate(this, this.updateElementScrollPosition);
-    this.updateScrollPosition();
+    this.getScrollPosition = (this.scrollTarget === window) ? delegate(this, this.getWindowScrollPosition) : delegate(this, this.getElementScrollPosition);
     this.onScroll = delegate(this, this.onScroll);
     this.onNextFrame = delegate(this, this.onNextFrame);
+
+    this._scrollY = this.scrollY;
+    // this._scrollX = this.scrollX;
 
     if (this.scrollTarget.addEventListener) {
       // this.scrollTarget.addEventListener('mousewheel', this.onScroll, Can.passiveEvents ? { passive: true } : false);
@@ -122,33 +137,94 @@ export default class FastScroll extends EventDispatcher {
       }
 
       this.onScroll = null;
-      this.updateScrollPosition = null;
+      this.getScrollPosition = null;
       this.onNextFrame = null;
       this.scrollTarget = null;
       this.destroyed = true;
     }
   }
 
-  getAttributes() {
+  get attr() {
     return {
       scrollY: this.scrollY,
-      scrollX: this.scrollX,
+      // scrollX: this.scrollX,
       speedY: this.speedY,
-      speedX: this.speedX,
-      angle: 0,
-      directionY: this.speedY === 0 ? FastScroll.NONE : ((this.speedY > 0) ? FastScroll.UP : FastScroll.DOWN),
-      directionX: this.speedX === 0 ? FastScroll.NONE : ((this.speedX > 0) ? FastScroll.RIGHT : FastScroll.LEFT)
+      // speedX: this.speedX,
+      // angle: 0,
+      directionY: this.directionY
+      // directionX: this.directionX
     };
   }
 
-  updateWindowScrollPosition() {
-    this.scrollY = window.scrollY || window.pageYOffset || 0;
-    this.scrollX = window.scrollX || window.pageXOffset || 0;
+
+  get directionY() {
+    if (this.speedY === 0 && !this.scrolling) {
+      this._directionY = FastScroll.NONE;
+    } else {
+      if (this.speedY > 0) {
+        this._directionY = FastScroll.UP;
+      } else if (this.speedY < 0) {
+        this._directionY = FastScroll.DOWN;
+      }
+    }
+    return this._directionY;
   }
 
-  updateElementScrollPosition() {
-    this.scrollY = this.scrollTarget.scrollTop;
-    this.scrollX = this.scrollTarget.scrollLeft;
+  get directionX() {
+    if (this.speedX === 0 && !this.scrolling) {
+      this._directionX = FastScroll.NONE;
+    } else {
+      if (this.speedX > 0) {
+        this._directionX = FastScroll.RIGHT;
+      } else if (this.speedX < 0) {
+        this._directionX = FastScroll.LEFT;
+      }
+    }
+    return this._directionX;
+  }
+
+
+  get delta() {
+    return this.directionY;
+  }
+
+  get speedY() {
+    return this._speedY;
+  }
+
+  get speedX() {
+    return this._speedX;
+  }
+
+
+  get scrollY() {
+    return this.getScrollPosition().y;
+  }
+
+  get y() {
+    return this.scrollY;
+  }
+
+  get scrollX() {
+    return this.getScrollPosition().x;
+  }
+
+  get x() {
+    return this.scrollX;
+  }
+
+  getWindowScrollPosition() {
+    return {
+      y: (window.scrollY || window.pageYOffset || 0),
+      x: (window.scrollX || window.pageXOffset || 0)
+    }
+  }
+
+  getElementScrollPosition() {
+    return {
+      y: this.scrollTarget.scrollTop,
+      x: this.scrollTarget.scrollLeft
+    }
   }
 
   onScroll() {
@@ -156,7 +232,10 @@ export default class FastScroll extends EventDispatcher {
     if (this.firstRender) {
       this.firstRender = false;
       if (this.scrollY > 1) {
-        this.updateScrollPosition();
+
+        this._scrollY = this.scrollY;
+        this._scrollX = this.scrollX;
+        // this.getScrollPosition();
         this.dispatchEvent(FastScroll.EVENT_SCROLL_PROGRESS);
         return;
       }
@@ -164,6 +243,7 @@ export default class FastScroll extends EventDispatcher {
 
     if (!this.scrolling) {
       this.scrolling = true;
+      this.firstScroll = true;
       this.dispatchEvent(FastScroll.EVENT_SCROLL_START);
       if (this.options.animationFrame) {
         this.nextFrameID = window.requestAnimationFrame(this.onNextFrame);
@@ -180,28 +260,48 @@ export default class FastScroll extends EventDispatcher {
 
   onNextFrame() {
 
-    this.updateScrollPosition();
+    this._lastDirection = this.directionY;
+    // this._lastSpeed = this.speedY;
+    this._speedY = this._scrollY - this.scrollY;
+    // this._speedX = this._scrollX - this.scrollX;
 
-    this.speedY = this.lastScrollY - this.scrollY;
-    this.speedX = this.lastScrollX - this.scrollX;
 
-    this.lastScrollY = this.scrollY;
-    this.lastScrollX = this.scrollX;
 
-    if (this.options.animationFrame && (this.scrolling && this.speedY === 0 && (this.currentStopFrames++ > this.stopFrames))) {
+    // if(this.options.animationFrame && this.scrolling && ((this._scrollY === this.scrollY ) && (this._lastSpeed === 0 && this.speedY === 0) && (this.directionY === this._lastDirection) && (++this.currentStopFrames > this.stopFrames) /*&& this.directionY === this._lastDirection*/) ){
+    //   this.onScrollStop();
+    //   return;
+    // }
+
+
+    if (this.options.animationFrame && (this.scrolling && (this.speedY === 0 && (this.currentStopFrames++ > this.stopFrames)))) {
       this.onScrollStop();
       return;
+    }
+
+
+    this._scrollY = this.scrollY;
+    // this._scrollX = this.scrollX;
+
+    // console.log(this._lastDirection, this.directionY);
+    if (this._lastDirection !== this.directionY) {
+      // this.firstScroll = false;
+      this.dispatchEvent('scroll:' + FastScroll.directionToString(this.directionY));
     }
 
     this.dispatchEvent(FastScroll.EVENT_SCROLL_PROGRESS);
 
     if (this.options.animationFrame) {
-      this.nextFrameID = requestAnimationFrame(this.onNextFrame);
+      this.nextFrameID = window.requestAnimationFrame(this.onNextFrame);
     }
   }
 
   onScrollStop() {
     this.scrolling = false;
+    this._scrollY = this.scrollY;
+
+    // this.dispatchEvent('scroll:none');
+
+    // this._scrollX = this.scrollX;
     if (this.options.animationFrame) {
       this.cancelNextFrame();
       this.currentStopFrames = 0;
@@ -211,40 +311,35 @@ export default class FastScroll extends EventDispatcher {
 
   cancelNextFrame() {
     window.cancelAnimationFrame(this.nextFrameID);
+    this.nextFrameID = 0;
   }
-
-  // dispatchEvent (event) {
-  //   super.dispatchEvent(event, {target: this.scrollTarget});
-  // }
 
 }
 
 
+var passiveEvents = null;
+
 class Can {
-  constructor() {
-    this._passiveEvents = null;
-  }
 
 
-  get animationFrame() {
-    return true;
-    // console.log((window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame) )
-    //return typeof (window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame) === 'function';
-  }
+  static get animationFrame() {
+    return !!(window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame);
+  };
 
 
-  get passiveEvents() {
-    if (!this._passiveEvents) {
-      return this._passiveEvents;
+  static get passiveEvents() {
+    if (passiveEvents !== null) {
+      return passiveEvents;
     }
-    this._supportsPassive = false;
     try {
       var opts = Object.defineProperty({}, 'passive', {
         get: () => {
-          this._supportsPassive = true;
+          passiveEvents = true;
         }
       });
       window.addEventListener("test", null, opts);
-    } catch (e) {}
+    } catch (e) {
+      passiveEvents = false;
+    }
   }
 }

@@ -92,19 +92,26 @@
 
   var fastScroll = new FastScroll();
 
+  fastScroll.on('scroll:down', function(event) {
+    console.log('========== scroll:down =============');
+  });
+
+  fastScroll.on('scroll:up', function(event) {
+    console.log('========== scroll:up =============');
+  });
+
   fastScroll.on('scroll:start', function(event) {
-    console.log('scroll:=========> start', fastScroll.scrollY);
+    console.log('scroll:start     y:' + fastScroll.scrollY + '  direction: ' + fastScroll.directionY+' ('+ FastScroll.directionToString(fastScroll.directionY)+')')
     follower.style[prefixedTransform] = 'translateY(' + fastScroll.scrollY + 'px)';
   });
 
   fastScroll.on('scroll:progress', function(event) {
-    console.log('scroll:progress', fastScroll.scrollY)
-
+    console.log('scroll:progress  y:' + fastScroll.scrollY + '  direction: ' + fastScroll.directionY+' ('+ FastScroll.directionToString(fastScroll.directionY)+')')
     follower.style[prefixedTransform] = 'translateY(' + fastScroll.scrollY + 'px)';
   });
 
   fastScroll.on('scroll:stop', function(event) {
-    console.log('scroll:========> stop', fastScroll.scrollY);
+    console.log('scroll:stop      y:' + fastScroll.scrollY + '  direction: ' + fastScroll.directionY+' ('+ FastScroll.directionToString(fastScroll.directionY)+')')
     follower.style[prefixedTransform] = 'translateY(' + fastScroll.scrollY + 'px)';
   });
   </script>
