@@ -3,35 +3,21 @@ body {
   background-color: #f1f1f1;
   margin: 0;
   padding:0;
-}
+  height: 5000px;
 
-
-.box {
-  height: 0;
-  padding-top: 20%;
-  background: white;
-}
-.box:nth-child(odd) {
-  background: #919191;
+  background: repeating-linear-gradient(
+    180deg,
+    #606dbc,
+    #606dbc 10px,
+    #465298 10px,
+    #465298 20px
+  );
 }
 
 .follower {
+  display: inline-block;
   background: black;
   width:100px;
   height:100px;
   border-radius: 50px;
-  margin: 0 auto;
-  margin-top: 4%;
-  -webkit-backface-visibility: none;
-          backface-visibility: none;
-}
-
-
-.message {
-  font-size: 1.4em;
-  display: block;
-  width: 100%;
-  position: fixed;
-  text-align: center;
-  top: 30%;
 }

@@ -1,6 +1,6 @@
 {
   "name": "fastscroll",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Performant Custom Scroll Events",
   "main": "dist/fastscroll.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "build-js": "browserify --fast -e src/index.js -d --standalone FastScroll -t babelify | derequire | exorcist dist/fastscroll.browser.js.map > dist/fastscroll.browser.js",
     "dist-js": "BABEL_ENV=production NODE_ENV=production browserify -e src/index.js --standalone FastScroll -t babelify | derequire > dist/fastscroll.browser.js",
     "dist-js-min": "uglifyjs -cmv dist/fastscroll.browser.js > dist/fastscroll.browser.min.js",
-    "dist": "npm run dist-js && npm run dist-js-min && npm run build-lib",
+    "dist": "cp src/fastscroll.css dist/ && npm run dist-js && npm run dist-js-min && npm run build-lib",
     "start": "run-p watch-js server",
     "build-lib": "BABEL_ENV=production babel src -d dist",
     "watch-js": "watchify -d --poll=100 --fast --standalone FastScroll -e src/index.js -t babelify -o 'exorcist dist/fastscroll.browser.js.map > dist/fastscroll.browser.js' -v",

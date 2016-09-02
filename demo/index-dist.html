@@ -7,44 +7,47 @@
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <title>Fastscroll Demo</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../dist/fastscroll.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
 </head>
 
 <body>
-  <p class="message">The Ball is position:absolute and repositioned on scroll (start / progress / end)</p>
   <div class="follower"></div>
-  <div id="boxContainer"></div>
   <script src="../dist/fastscroll.browser.min.js"></script>
   <script>
 
-
-  var fastScroll = new FastScroll();
-
-  var numBoxes = 100;
   var follower = document.querySelector('.follower');
-  var boxContainer = document.querySelector('#boxContainer');
+  var prefixedTransform = PrefixFree.prefixSelector('transform');
 
-  for (var i = 0; i < numBoxes; ++i) {
-    var box = document.createElement('div');
-    box.className = 'box';
-    boxContainer.appendChild(box);
-  }
+  // window.addEventListener('scroll', function(e){
+  //   follower.style[prefixedTransform] = 'translate3d(0,' + window.pageYOffset + 'px,0)';
+  // })
 
-  // var fastScroll = new FastScroll(null, {animationFrame:false});
+
+
   var fastScroll = new FastScroll();
+
+  fastScroll.on('scroll:down', function(event) {
+    // console.log('========== scroll:down =============');
+  });
+
+  fastScroll.on('scroll:up', function(event) {
+    // console.log('========== scroll:up =============');
+  });
 
   fastScroll.on('scroll:start', function(event) {
-    console.log('scroll:=========> start', fastScroll.scrollY);
-    follower.style.top = fastScroll.scrollY + 'px';
+    // console.log('scroll:start     y:' + fastScroll.y + '  direction: ' + fastScroll.directionY+' ('+ FastScroll.directionToString(fastScroll.directionY)+')')
+    follower.style[prefixedTransform] = 'translate3d(0,' + fastScroll.y + 'px,0)';
   });
 
   fastScroll.on('scroll:progress', function(event) {
-    console.log('scroll:progress', fastScroll.scrollY);
-    follower.style.top = fastScroll.scrollY + 'px';
+    // console.log('scroll:progress  y:' + fastScroll.y + '  direction: ' + fastScroll.directionY+' ('+ FastScroll.directionToString(fastScroll.directionY)+')')
+    follower.style[prefixedTransform] = 'translate3d(0,' + fastScroll.y + 'px,0)';
   });
 
   fastScroll.on('scroll:stop', function(event) {
-    console.log('scroll:========> stop', fastScroll.scrollY);
-    follower.style.top = fastScroll.scrollY + 'px';
+    // console.log('scroll:stop      y:' + fastScroll.y + '  direction: ' + fastScroll.directionY+' ('+ FastScroll.directionToString(fastScroll.directionY)+')')
+    follower.style[prefixedTransform] = 'translate3d(0,' + fastScroll.y + 'px,0)';
   });
   </script>
 </body>

@@ -215,8 +215,8 @@ export default class FastScroll extends EventDispatcher {
 
   getWindowScrollPosition() {
     return {
-      y: (window.scrollY || window.pageYOffset || 0),
-      x: (window.scrollX || window.pageXOffset || 0)
+      y: (window.pageYOffset || window.scrollY  || 0),
+      x: (window.pageXOffset || window.scrollX || 0)
     }
   }
 

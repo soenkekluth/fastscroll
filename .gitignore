@@ -11,5 +11,4 @@ node_modules
 
 .tern-port
 
-fastscroll.js.map
-index-new.js
+*.map
