@@ -1,6 +1,5 @@
 import delegate from 'delegatejs';
 import EventDispatcher from 'eventdispatcher';
-import { debounce } from 'lodash';
 
 const _instanceMap = {};
 

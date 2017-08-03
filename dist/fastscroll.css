@@ -1,5 +1,0 @@
-body::before{
-  content: '';
-  display: block;
-  position: fixed;
-}
